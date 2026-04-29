@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">research 4</title>
+  <desc id="desc">Exchange visit placeholder</desc>
+  <rect width="1200" height="800" fill="#21343e"/>
+  <rect y="420" width="1200" height="380" fill="#b95b46"/>
+  <g fill="#e8e3d7">
+    <rect x="70" y="220" width="260" height="360" rx="12"/>
+    <rect x="370" y="190" width="210" height="390" rx="12"/>
+    <rect x="610" y="235" width="250" height="345" rx="12"/>
+    <rect x="900" y="210" width="230" height="370" rx="12"/>
+  </g>
+  <text x="90" y="650" fill="#fff3ea" font-family="Arial, sans-serif" font-size="48" font-weight="700">参访活动</text>
+</svg>

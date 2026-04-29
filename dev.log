@@ -1,0 +1,21 @@
+npm verbose cli D:\Program Files\nodejs\node.exe D:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+npm info using npm@10.9.3
+npm info using node@v22.18.0
+npm verbose title npm run dev --port 3001
+npm verbose argv "run" "dev" "--" "--port" "3001"
+npm verbose logfile logs-max:10 dir:C:\Users\41362\AppData\Local\npm-cache\_logs\2026-04-28T18_53_26_587Z-
+npm verbose logfile C:\Users\41362\AppData\Local\npm-cache\_logs\2026-04-28T18_53_26_587Z-debug-0.log
+
+> fudan-homepage@1.0.0 dev
+> next dev --port 3001
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3001
+   - Network:      http://169.254.126.140:3001
+
+ ✓ Starting...
+ ✓ Ready in 4.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 3s (704 modules)
+ GET / 200 in 3644ms
+ GET / 200 in 346ms

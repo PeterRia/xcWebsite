@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand: #98282c;
+  --color-brand-dark: #842125;
+  --color-brand-soft: #b94a4f;
+  --color-ink: #232323;
+  --color-muted: #6c6864;
+  --color-paper: #faf8f5;
+  --color-line: #e8e2dc;
+  --max-page-width: 1360px;
+  --section-gap: clamp(3rem, 6vw, 5.5rem);
+  --section-padding-x: clamp(1rem, 2.2vw, 2.75rem);
+  --radius-panel: 4px;
+  --shadow-panel: 0 14px 38px rgba(37, 29, 23, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--color-ink);
+  background:
+    linear-gradient(180deg, #fdfbf8 0%, #fbf8f5 42%, #f6f3ef 100%);
+  font-family: Arial, "Microsoft YaHei", "PingFang SC", "Noto Sans SC",
+    system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(152, 40, 44, 0.2);
+}
+
+.page-shell {
+  position: relative;
+  overflow-x: clip;
+}
+
+.page-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    120deg,
+    rgba(152, 40, 44, 0.03) 0,
+    rgba(152, 40, 44, 0.03) 1px,
+    transparent 1px,
+    transparent 96px
+  );
+  opacity: 0.6;
+}
+
+.section-band {
+  position: relative;
+}
+
+.section-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.8;
+  background-image: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.25) 0,
+    rgba(255, 255, 255, 0.25) 1px,
+    transparent 1px,
+    transparent 74px
+  );
+}
