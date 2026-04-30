@@ -1,0 +1,191 @@
+/* study-note: base.css
+ * 作用：定义全站设计令牌和最基础的可复用能力。
+ * 组织方式：先放 :root 变量，再放页面级基础样式，最后放通用容器、卡片、标题和响应式断点。
+ * 学习重点：这里的变量是整个视觉系统的“单一数据源”，后续 CSS 应优先引用变量，而不是到处硬编码颜色、圆角、动效时间。
+ */
+/* 设计令牌：颜色、阴影、圆角、动效、版心宽度、栏目间距、字体栈统一在这里维护。 */
+:root {
+  --color-primary: #8f2b2b;
+  --color-primary-dark: #7b2020;
+  --color-primary-soft: #a94b4b;
+  --color-accent: #c7a16a;
+  --color-text: #232323;
+  --color-muted: #6e6a66;
+  --color-border: #e4ddd7;
+  --color-surface: #ffffff;
+  --color-page: #f5f3f0;
+  --color-card: #faf9f7;
+  --color-shadow: 0 10px 22px rgba(67, 39, 39, 0.12);
+  --color-hover-blue: #1f5f9f;
+  --color-hover-blue-dark: #174a7c;
+  --motion-fast: 0.18s ease;
+  --motion-normal: 0.28s ease;
+  --motion-slider: 0.56s cubic-bezier(0.45, 0, 0.2, 1);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --container: 1360px;
+  --section-gap: 72px;
+  --font-sans: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+}
+
+/* 页面边界：保证小屏最小宽度，关闭横向滚动，避免固定宽度元素造成左右抖动。 */
+html,
+/* 页面背景和默认字体：全站继承这里的字体、文本色和浅色背景基调。 */
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+/* 页面背景和默认字体：全站继承这里的字体、文本色和浅色背景基调。 */
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: linear-gradient(180deg, #f7f5f2 0%, #f4f2ee 100%);
+}
+
+/* 移动端抽屉打开时锁住 body 滚动，避免菜单层和底层页面同时滚动。 */
+body.menu-open {
+  overflow: hidden;
+}
+
+.page {
+  min-height: 100vh;
+}
+
+/* 版心容器：使用 min() 同时限制最大宽度和屏幕边距，是首页所有内容横向对齐的基础。 */
+.wrap {
+  width: min(var(--container), calc(100% - 40px));
+  margin: 0 auto;
+}
+
+/* 图标按钮基础形态：固定点击热区，内部 SVG 居中，用 currentColor 继承按钮颜色。 */
+.icon-button {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.icon-button svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 卡片基础样式：只定义白底、圆角、阴影和裁剪，具体尺寸交给各业务模块。 */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--color-shadow);
+  overflow: hidden;
+}
+
+/* 栏目标题通用结构：标题居中，更多链接绝对定位到右侧，适合新闻/公告/风采等重复栏目。 */
+.section-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.section-head h2 {
+  position: relative;
+  font-size: 42px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: #303030;
+}
+
+.section-head h2::after {
+  content: '';
+  display: block;
+  width: 46px;
+  height: 3px;
+  margin: 12px auto 0;
+  background: var(--color-primary);
+}
+
+.section-head .more-link {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #6a6a6a;
+}
+
+.section-head.section-head-light h2 {
+  color: #fff;
+}
+
+.section-head.section-head-light h2::after {
+  background: #fff;
+}
+
+.more-link-light {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.site-main {
+  overflow: hidden;
+}
+
+/* 无障碍动效降级：尊重系统“减少动态效果”设置，把过渡和动画压到几乎不可见。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* 平板断点：缩小栏目间距、版心边距和标题字号。 */
+@media (max-width: 1024px) {
+  /* 设计令牌：颜色、阴影、圆角、动效、版心宽度、栏目间距、字体栈统一在这里维护。 */
+:root {
+    --section-gap: 56px;
+  }
+
+  /* 版心容器：使用 min() 同时限制最大宽度和屏幕边距，是首页所有内容横向对齐的基础。 */
+.wrap {
+    width: min(var(--container), calc(100% - 28px));
+  }
+
+  .section-head h2 {
+    font-size: 34px;
+  }
+}
+
+/* 手机断点：进一步收紧左右安全边距和标题尺寸，保证窄屏不溢出。 */
+@media (max-width: 767px) {
+  /* 版心容器：使用 min() 同时限制最大宽度和屏幕边距，是首页所有内容横向对齐的基础。 */
+.wrap {
+    width: min(var(--container), calc(100% - 20px));
+  }
+
+  /* 栏目标题通用结构：标题居中，更多链接绝对定位到右侧，适合新闻/公告/风采等重复栏目。 */
+.section-head {
+    margin-bottom: 20px;
+  }
+
+  .section-head h2 {
+    font-size: 28px;
+  }
+
+  .section-head .more-link {
+    font-size: 14px;
+  }
+}

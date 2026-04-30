@@ -1,0 +1,67 @@
+/* study-note: components.css
+ * 作用：放真正可复用的小组件样式。
+ * 当前首页主要用到 .tag；.btn、.breadcrumb、.section-divider 为后续子页预留，但不参与首页核心布局。
+ * 学习重点：组件文件只放“可跨页面复用”的样式，不把首页专属网格或栏目样式塞进来。
+ */
+/* ===== Reusable Components ===== */
+
+/* Buttons：通用按钮只定义内边距、字体、圆角和状态色，不绑定具体业务位置。 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--motion-fast);
+}
+
+.btn--primary {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Tag：首页教学科研卡片里的小标签。使用 inline-flex 便于和文本基线、间距稳定对齐。 */
+.tag {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 6px 14px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Breadcrumb：面包屑用于子页面路径提示，首页未使用，保留在组件层便于复用。 */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  padding: var(--space-md) 0;
+}
+
+.breadcrumb__item:not(:last-child)::after {
+  content: ">";
+  margin-left: var(--space-sm);
+  color: var(--color-text-light);
+}
+
+.breadcrumb__link:hover {
+  color: var(--color-primary);
+}
+
+/* Section divider：通用分割线，适合子页面内容块之间的轻量分隔。 */
+.section-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-xl) 0;
+}
