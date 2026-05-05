@@ -1068,11 +1068,14 @@
 
   .slider-arrow.prev {
     left: 0;
+    right: auto;
+    margin-left: 0;
   }
 
   .slider-arrow.next {
     left: auto;
     right: 0;
+    margin-left: 0;
   }
 
   .slider-arrow svg {
