@@ -1,105 +1,151 @@
 /* study-note: pages/home.js
- * 作用：首页私有交互：轮播、新闻联动、通知激活态、快速链接渲染。
+ * 作用：首页私有交互：轮播、学院新闻、通知公告、快速链接渲染。
  * 与 main.js 的边界：main.js 管全站框架；home.js 只读取首页主体里的 data-* 节点。
- * 学习重点：所有函数都先查找必要 DOM，缺失就提前 return，这让脚本在非首页加载时也不会报错。
+ * 学习重点：首页 HTML 只放“容器”，内容统一从 assets/js/data.js 读取；新增栏目时不要把数据写死在 HTML 中。
  */
 (function () {
   var siteData = window.siteData || {};
 
+  /* ===== Date helpers ===== */
+  function parseDate(dateString) {
+    var fallback = { year: '', month: '', day: '', monthDay: '', iso: dateString || '' };
+    if (!dateString || typeof dateString !== 'string') {
+      return fallback;
+    }
+    var parts = dateString.split('-');
+    if (parts.length < 3) {
+      return fallback;
+    }
+    var year = parts[0] || '';
+    var month = (parts[1] || '').padStart(2, '0');
+    var day = (parts[2] || '').padStart(2, '0');
+    return {
+      year: year,
+      month: month,
+      day: day,
+      monthDay: month + '-' + day,
+      iso: year + '-' + month + '-' + day
+    };
+  }
+
+  function createDateBlock(tagName, dateString, className) {
+    var parts = parseDate(dateString);
+    var node = document.createElement(tagName || 'span');
+    var date = document.createElement('strong');
+    var year = tagName === 'time' ? document.createElement('small') : document.createElement('span');
+
+    node.className = className || '';
+    node.classList.add('date-block');
+    if (tagName === 'time') {
+      node.dateTime = parts.iso;
+    }
+    node.setAttribute('aria-label', parts.iso || dateString || '日期');
+    date.className = 'date-block-date';
+    year.className = 'date-block-year';
+    date.textContent = parts.monthDay;
+    year.textContent = parts.year;
+    node.appendChild(date);
+    node.appendChild(year);
+    return node;
+  }
+
+  function createTextElement(tagName, className, text) {
+    var node = document.createElement(tagName);
+    if (className) {
+      node.className = className;
+    }
+    node.textContent = text || '';
+    return node;
+  }
+
   /* ===== Slider ===== */
   function initSlider() {
-    // 轮播初始化：收集 DOM、复制首尾 slide、把每格宽度写入 CSS 变量，再绑定按钮/圆点/自动播放/暂停逻辑。
-    var root = document.querySelector("[data-slider]");
+    var root = document.querySelector('[data-slider]');
     if (!root) {
       return;
     }
 
-    var viewport = root.querySelector(".slider-viewport");
-    var track = root.querySelector(".slider-track");
-    var sourceSlides = Array.from(root.querySelectorAll(".slide"));
-    var dots = Array.from(root.querySelectorAll(".dot"));
-    var prev = root.querySelector(".slider-arrow.prev");
-    var next = root.querySelector(".slider-arrow.next");
-    if (!viewport || !track || sourceSlides.length < 2 || !prev || !next) {
+    renderHeroSlides(root);
+
+    var viewport = root.querySelector('.slider-viewport');
+    var track = root.querySelector('.slider-track');
+    var sourceSlides = track ? Array.from(track.querySelectorAll('.slide')) : [];
+    var dots = Array.from(root.querySelectorAll('.dot'));
+    var prev = root.querySelector('.slider-arrow.prev');
+    var next = root.querySelector('.slider-arrow.next');
+    if (!viewport || !track || !sourceSlides.length || !prev || !next) {
       return;
     }
 
-    var index = 1; // 轨道当前位置。因为 setupClones() 会在最前面插入“最后一张克隆”，所以真实第一张的轨道索引是 1，不是 0。
-    var timer = null; // 自动播放定时器句柄。start() 创建它，stop() 清掉它，避免用户连续点击后出现多个 setInterval 同时推进。
-    var delay = 2500; // 自动播放间隔，单位毫秒。参考站 SuperSlide 默认 interTime 是 2500，所以这里每 2.5 秒尝试横移一格。
-    var paused = false; // 暂停标记。鼠标悬停或键盘焦点进入轮播时设为 true，让自动播放暂时不推进 index。
-    var isAnimating = false; // 动画锁。true 表示上一格横移动画还没结束，此时忽略新的移动请求，防止连续点击或自动播放叠加造成位置错乱。
-    var slideCount = sourceSlides.length; // 原始 slide 数量，不包含首尾克隆。圆点和边界判断都必须基于原始数量计算。
+    var slideCount = sourceSlides.length;
+    root.classList.toggle('has-single-slide', slideCount === 1);
+
+    if (slideCount === 1) {
+      sourceSlides[0].classList.add('is-active');
+      sourceSlides[0].setAttribute('aria-hidden', 'false');
+      prev.hidden = true;
+      next.hidden = true;
+      var dotWrap = root.querySelector('.slider-dots');
+      if (dotWrap) {
+        dotWrap.hidden = true;
+      }
+      preloadSliderImages(root);
+      return;
+    }
+
+    var index = 1;
+    var timer = null;
+    var delay = 4200;
+    var paused = false;
+    var isAnimating = false;
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     setupClones(track, sourceSlides);
     preloadSliderImages(root);
 
     function getSlideWidth() {
-      // 返回“一格”的固定宽度，单位是 px。
-      // viewport.clientWidth 是当前可视窗口的内容宽度，不包含滚动条。
-      // 每次横移距离都使用这个值，确保 transform 移动距离和 CSS 里的每格宽度完全一致。
       return viewport.clientWidth;
     }
 
     function syncSlideWidth() {
-      // 把 JS 测到的视窗宽度写入 CSS 自定义属性 --slider-cell-width。
-      // CSS 中 .slide 的 flex-basis 和 width 都读取这个变量，所以所有 slide 会被锁定成同一个固定宽度。
-      // 写在 root 上的好处是作用域只覆盖当前轮播，不影响页面其他模块。
-      root.style.setProperty("--slider-cell-width", getSlideWidth() + "px");
+      root.style.setProperty('--slider-cell-width', getSlideWidth() + 'px');
     }
 
     function getRealIndex() {
-      // 把包含克隆项的轨道索引换算成 0-based 的真实圆点索引。
-      // 例：index=1 表示真实第 1 张，返回 0；index=slideCount+1 表示“第 1 张克隆”，也返回 0。
-      // 加 slideCount 再取模，是为了 index=0（最后一张克隆）时也能得到合法的最后一张真实索引。
       return ((index - 1) % slideCount + slideCount) % slideCount;
     }
 
     function updateState() {
-      // 同步语义状态：
-      // 1. .is-active 只作为“当前格”标记，不再触发图片透明度、缩放或布局尺寸变化。
-      // 2. aria-hidden 告诉辅助技术非当前 slide 暂时不可见。
-      // 3. aria-pressed 告诉辅助技术当前被选中的圆点是哪一个。
-      Array.from(track.querySelectorAll(".slide")).forEach(function (slide, slideIndex) {
+      Array.from(track.querySelectorAll('.slide')).forEach(function (slide, slideIndex) {
         var isActive = slideIndex === index;
-        slide.classList.toggle("is-active", isActive);
-        slide.setAttribute("aria-hidden", String(!isActive));
+        slide.classList.toggle('is-active', isActive);
+        slide.setAttribute('aria-hidden', String(!isActive));
+        slide.querySelectorAll('a, button').forEach(function (control) {
+          control.tabIndex = isActive ? 0 : -1;
+        });
       });
       dots.forEach(function (dot, dotIndex) {
         var isActiveDot = dotIndex === getRealIndex();
-        dot.classList.toggle("is-active", isActiveDot);
-        dot.setAttribute("aria-pressed", String(isActiveDot));
+        dot.classList.toggle('is-active', isActiveDot);
+        dot.setAttribute('aria-pressed', String(isActiveDot));
       });
     }
 
     function setPosition(skipTransition) {
-      // 设置轨道位置。
-      // 参数 skipTransition:
-      // - false：普通切换，保留 CSS transition，让整条长轨道自然横向滑动一格。
-      // - true：初始化、窗口缩放、从克隆图跳回真实图时使用，临时关闭 transition，避免出现“倒退回跳”的动画。
-      // transform 位移公式：-(当前轨道索引 × 单格宽度)。
-      // 例：index=3、单格宽度=1200px，则轨道移动 -3600px，视窗正好露出第 3 格。
-      // 参考站 SuperSlide 用的是 `ul.left = -(... * 1200px)`；这里用 transform 得到同样视觉位移。
       syncSlideWidth();
       isAnimating = !skipTransition;
-      track.classList.toggle("is-jump", Boolean(skipTransition));
-      track.style.transform = "translate3d(" + -index * getSlideWidth() + "px, 0, 0)";
+      track.classList.toggle('is-jump', Boolean(skipTransition));
+      track.style.transform = 'translate3d(' + -index * getSlideWidth() + 'px, 0, 0)';
       updateState();
       if (skipTransition) {
-        // 读取 offsetHeight 用来强制浏览器立即应用 transition: none。
-        // 否则下一帧移除 is-jump 时，浏览器可能把“瞬跳”和“恢复动画”合并，导致边界衔接出现可见抖动。
         track.offsetHeight;
         window.requestAnimationFrame(function () {
-          track.classList.remove("is-jump");
+          track.classList.remove('is-jump');
         });
       }
     }
 
     function moveTo(nextIndex) {
-      // 普通移动入口。
-      // nextIndex 可以是 0 或 slideCount + 1，这两个值分别代表尾部克隆和首部克隆。
-      // 允许先移动到克隆格，是实现首尾自然衔接的关键。
-      // isAnimating 为 true 时直接返回，表示上一段横移还在播放；这样每次只移动“一格”，不会把多次点击叠成跳格。
       if (isAnimating || nextIndex === index) {
         return;
       }
@@ -108,11 +154,6 @@
     }
 
     function jumpIfNeeded(event) {
-      // 首尾无缝衔接处理。
-      // 当轨道动画结束时，如果当前 index 落在克隆格：
-      // - index === 0：说明从真实第一张向左滑到了“最后一张克隆”，此时瞬跳到真实最后一张 slideCount。
-      // - index === slideCount + 1：说明从真实最后一张向右滑到了“第一张克隆”，此时瞬跳到真实第一张 1。
-      // 因为克隆图和真实图内容完全一致，且 setPosition(true) 不播放 transition，所以用户只看到连续横移。
       if (event && event.target !== track) {
         return;
       }
@@ -130,10 +171,9 @@
     }
 
     function start() {
-      // 启动自动播放。
-      // 每次启动前先 stop()，保证最多只有一个定时器在运行。
-      // 定时器每 delay 毫秒尝试把 index 推进一格；如果 paused=true，则本轮不移动。
-      // isAnimating=true 时也不推进，确保自动播放不会和正在进行的横移动画叠加。
+      if (reduceMotion) {
+        return;
+      }
       stop();
       timer = window.setInterval(function () {
         if (!paused && !isAnimating) {
@@ -143,48 +183,40 @@
     }
 
     function stop() {
-      // 停止自动播放。
-      // clearInterval 需要 timer 句柄；清掉后把 timer 设回 null，表示当前没有定时器。
       if (timer) {
         window.clearInterval(timer);
         timer = null;
       }
     }
 
-    prev.addEventListener("click", function () {
+    prev.addEventListener('click', function () {
       moveTo(index - 1);
       start();
     });
-    next.addEventListener("click", function () {
+    next.addEventListener('click', function () {
       moveTo(index + 1);
       start();
     });
     dots.forEach(function (dot, dotIndex) {
-      dot.addEventListener("click", function () {
+      dot.addEventListener('click', function () {
         moveTo(dotIndex + 1);
         start();
       });
     });
-    track.addEventListener("transitionend", jumpIfNeeded);
-    root.addEventListener("mouseenter", function () {
-      // 鼠标进入轮播区域时暂停自动播放，避免用户准备点击箭头/圆点时轨道自动移动。
+    track.addEventListener('transitionend', jumpIfNeeded);
+    root.addEventListener('mouseenter', function () {
       paused = true;
     });
-    root.addEventListener("mouseleave", function () {
-      // 鼠标离开后恢复自动播放，但不会重建定时器，只是允许下一次 interval 生效。
+    root.addEventListener('mouseleave', function () {
       paused = false;
     });
-    root.addEventListener("focusin", function () {
-      // 键盘用户 Tab 到轮播控件时暂停，避免焦点所在内容被自动切走。
+    root.addEventListener('focusin', function () {
       paused = true;
     });
-    root.addEventListener("focusout", function () {
-      // 焦点离开轮播后恢复自动播放。
+    root.addEventListener('focusout', function () {
       paused = false;
     });
-    window.addEventListener("resize", function () {
-      // 视窗宽度变化后，每格固定宽度也要重新同步。
-      // 这里使用 skipTransition=true，避免用户看到轨道因为重新计算宽度而动画抖动。
+    window.addEventListener('resize', function () {
       setPosition(true);
     });
 
@@ -192,141 +224,241 @@
     start();
   }
 
+  function renderHeroSlides(root) {
+    var track = root.querySelector('[data-hero-track]') || root.querySelector('.slider-track');
+    var dots = root.querySelector('[data-hero-dots]') || root.querySelector('.slider-dots');
+    var slides = (siteData.heroSlides || []).filter(function (item) {
+      return item && item.active !== false;
+    });
+
+    if (!track || !slides.length) {
+      return;
+    }
+
+    track.textContent = '';
+    if (dots) {
+      dots.textContent = '';
+    }
+
+    slides.forEach(function (item, index) {
+      track.appendChild(createHeroSlide(item, index));
+      if (dots) {
+        dots.appendChild(createHeroDot(item, index));
+      }
+    });
+  }
+
+  function createHeroSlide(item, index) {
+    var article = document.createElement('article');
+    var link = document.createElement('a');
+    var img = document.createElement('img');
+    var caption = document.createElement('div');
+    var eyebrow = document.createElement('p');
+    var title = document.createElement('h2');
+
+    article.className = 'slide' + (index === 0 ? ' is-active' : '');
+    article.style.setProperty('--hero-object-position', item.objectPosition || 'center center');
+    article.setAttribute('aria-hidden', String(index !== 0));
+
+    link.className = 'slide-link';
+    link.href = item.href || '#';
+    link.setAttribute('aria-label', item.title || '查看轮播详情');
+
+    img.src = item.image;
+    img.alt = item.alt || item.title || '';
+    img.decoding = 'async';
+    if (index === 0) {
+      img.loading = 'eager';
+      img.setAttribute('fetchpriority', 'high');
+    } else {
+      img.loading = 'lazy';
+    }
+
+    caption.className = 'slide-caption';
+    eyebrow.textContent = item.subtitle || '学院主轮播';
+    title.textContent = item.title || '';
+
+    caption.appendChild(eyebrow);
+    caption.appendChild(title);
+    link.appendChild(img);
+    link.appendChild(caption);
+    article.appendChild(link);
+
+    return article;
+  }
+
+  function createHeroDot(item, index) {
+    var dot = document.createElement('button');
+    dot.className = 'dot' + (index === 0 ? ' is-active' : '');
+    dot.type = 'button';
+    dot.setAttribute('aria-label', '切换到第 ' + (index + 1) + ' 张：' + (item.title || '轮播图'));
+    dot.setAttribute('aria-pressed', String(index === 0));
+    return dot;
+  }
+
   function setupClones(track, sourceSlides) {
-    // 首尾各复制一张 slide，生成的轨道顺序是：
-    // [最后一张克隆] [真实第 1 张] [真实第 2 张] ... [真实最后一张] [第 1 张克隆]
-    // 这样从真实最后一张向右滑时，下一格看到的是“第 1 张克隆”；动画结束后再瞬跳回真实第 1 张。
-    // 反方向同理，从真实第 1 张向左滑到“最后一张克隆”，再瞬跳回真实最后一张。
     var firstClone = sourceSlides[0].cloneNode(true);
     var lastClone = sourceSlides[sourceSlides.length - 1].cloneNode(true);
-    firstClone.setAttribute("data-clone", "true");
-    lastClone.setAttribute("data-clone", "true");
+    firstClone.setAttribute('data-clone', 'true');
+    lastClone.setAttribute('data-clone', 'true');
+    firstClone.querySelectorAll('a, button').forEach(function (control) {
+      control.tabIndex = -1;
+    });
+    lastClone.querySelectorAll('a, button').forEach(function (control) {
+      control.tabIndex = -1;
+    });
     track.insertBefore(lastClone, sourceSlides[0]);
     track.appendChild(firstClone);
   }
 
   function preloadSliderImages(root) {
-    // 预加载所有轮播图片。
-    // new Image() 会创建一个离屏图片对象；给它设置 src 后，浏览器会提前请求该资源。
-    // 这不会改变 DOM，也不会影响布局，只是减少第一次滑到某张图时的加载空白。
-    root.querySelectorAll(".slide img").forEach(function (img) {
+    root.querySelectorAll('.slide img').forEach(function (img) {
       var image = new Image();
       image.src = img.currentSrc || img.src;
     });
   }
 
-  /* ===== News Active State (with featured sync) ===== */
-  function initNewsActiveState() {
-    // 新闻区联动：右侧列表激活哪一条，左侧大卡就切换到对应新闻数据。
-    var newsSection = document.querySelector("[data-news-section]");
-    var newsFeature = document.querySelector("[data-news-feature]");
-    var newsList = document.querySelector("[data-news-list]");
-    var listItems = newsList ? Array.from(newsList.querySelectorAll(".news-list-item")) : [];
-    var newsData = siteData.news || [];
-
-    if (!newsSection || !newsList || !listItems.length || !newsFeature) {
+  /* ===== News rendering and active state ===== */
+  function renderNewsSection() {
+    var feature = document.querySelector('[data-news-feature]');
+    var list = document.querySelector('[data-news-list]');
+    var news = siteData.news || [];
+    if (!feature || !list || !news.length) {
       return;
     }
 
-    var defaultIndex = 0;
-    var currentActiveIndex = defaultIndex;
-
-    function updateFeaturedCard(index) {
-      // index 来自右侧列表；列表第一条对应 newsData[1]，因为 newsData[0] 是默认主新闻。
-      var data = newsData[index + 1]; // +1 because first item is featured by default in original layout
-      if (!data) {
-        data = newsData[0];
-      }
-      if (!data) return;
-
-      var img = newsFeature.querySelector(".news-image img");
-      var dayEl = newsFeature.querySelector(".date-badge strong");
-      var monthEl = newsFeature.querySelector(".date-badge span");
-      var titleEl = newsFeature.querySelector(".news-copy h3");
-      var summaryEl = newsFeature.querySelector(".news-copy p");
-
-      if (img && data.image) {
-        img.src = data.image;
-        img.alt = data.title || "";
-      }
-      if (dayEl && data.date) {
-        var parts = data.date.split("-");
-        dayEl.textContent = parts[2] || "";
-      }
-      if (monthEl && data.date) {
-        var parts = data.date.split("-");
-        monthEl.textContent = (parts[0] || "") + "-" + (parts[1] || "");
-      }
-      if (titleEl) {
-        titleEl.textContent = data.title || "";
-      }
-      if (summaryEl) {
-        summaryEl.textContent = data.summary || "";
-      }
-    }
-
-    function setActive(item, index) {
-      // 激活单个列表项，同时保持左侧新闻卡处于强调态。
-      listItems.forEach(function (node) {
-        node.classList.toggle("is-active", node === item);
-      });
-      newsFeature.classList.toggle("is-active", item !== null);
-      currentActiveIndex = index;
-      if (item !== null) {
-        updateFeaturedCard(index);
-      } else {
-        updateFeaturedCard(defaultIndex - 1);
-      }
-    }
-
-    function clearActive() {
-      // 初始化默认激活第一条列表，并把左侧主卡切回默认新闻。
-      listItems.forEach(function (node, idx) {
-        node.classList.toggle("is-active", idx === defaultIndex);
-      });
-      newsFeature.classList.add("is-active");
-      currentActiveIndex = defaultIndex;
-      updateFeaturedCard(defaultIndex - 1);
-    }
-
-    // Default: activate first item
-    clearActive();
-
-    listItems.forEach(function (item, index) {
-      var activate = function (event) {
-        if (event.type === "click") {
-          event.preventDefault();
-        }
-        setActive(item, index);
-      };
-      item.addEventListener("mouseenter", activate);
-      item.addEventListener("focusin", activate);
-      item.addEventListener("click", activate);
+    renderFeaturedNews(feature, news[0]);
+    list.textContent = '';
+    news.slice(1).forEach(function (item, offset) {
+      list.appendChild(createNewsListItem(item, offset + 1));
     });
-
-    // 鼠标移出新闻区域后，保留最后激活的状态，不恢复默认第一条
   }
 
-  /* ===== Notice Active State ===== */
+  function renderFeaturedNews(container, item) {
+    if (!item) {
+      return;
+    }
+    var link = document.createElement('a');
+    var imageWrap = document.createElement('div');
+    var img = document.createElement('img');
+    var body = document.createElement('div');
+    var copy = document.createElement('div');
+    var title = document.createElement('h3');
+    var summary = document.createElement('p');
+
+    container.textContent = '';
+    container.classList.add('is-active');
+    link.href = item.href || '#';
+    imageWrap.className = 'news-image';
+    img.src = item.image || '';
+    img.alt = item.title || '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    body.className = 'news-feature-body';
+    copy.className = 'news-copy';
+    title.textContent = item.title || '';
+    if ((item.title || '').length > 32) {
+      title.classList.add('is-long-title');
+    }
+    summary.textContent = item.summary || '';
+
+    imageWrap.appendChild(img);
+    copy.appendChild(title);
+    copy.appendChild(summary);
+    body.appendChild(createDateBlock('div', item.date, 'date-badge'));
+    body.appendChild(copy);
+    link.appendChild(imageWrap);
+    link.appendChild(body);
+    container.appendChild(link);
+  }
+
+  function createNewsListItem(item, realIndex) {
+    var article = document.createElement('article');
+    var link = document.createElement('a');
+    var diamond = createTextElement('span', 'diamond', '');
+    diamond.setAttribute('aria-hidden', 'true');
+    article.className = 'news-list-item';
+    article.setAttribute('data-news-index', String(realIndex));
+    link.href = item.href || '#';
+    link.appendChild(diamond);
+    link.appendChild(createTextElement('span', 'news-title', item.title || ''));
+    link.appendChild(createDateBlock('time', item.date, 'news-list-date'));
+    article.appendChild(link);
+    return article;
+  }
+
+  function initNewsActiveState() {
+    var newsSection = document.querySelector('[data-news-section]');
+    var newsFeature = document.querySelector('[data-news-feature]');
+    var newsList = document.querySelector('[data-news-list]');
+    var listItems = newsList ? Array.from(newsList.querySelectorAll('.news-list-item')) : [];
+    var newsData = siteData.news || [];
+
+    if (!newsSection || !newsList || !listItems.length || !newsFeature || !newsData.length) {
+      return;
+    }
+
+    function setActive(item) {
+      var realIndex = Number(item.getAttribute('data-news-index')) || 0;
+      listItems.forEach(function (node) {
+        node.classList.toggle('is-active', node === item);
+      });
+      renderFeaturedNews(newsFeature, newsData[realIndex] || newsData[0]);
+    }
+
+    listItems.forEach(function (item) {
+      var activate = function (event) {
+        if (event.type === 'click') {
+          event.preventDefault();
+        }
+        setActive(item);
+      };
+      item.addEventListener('mouseenter', activate);
+      item.addEventListener('focusin', activate);
+      item.addEventListener('click', activate);
+    });
+  }
+
+  /* ===== Notice rendering and active state ===== */
+  function renderNotices() {
+    var grid = document.querySelector('[data-notice-grid]');
+    var notices = siteData.notices || [];
+    if (!grid || !notices.length) {
+      return;
+    }
+    grid.textContent = '';
+    notices.forEach(function (item) {
+      grid.appendChild(createNoticeCard(item));
+    });
+  }
+
+  function createNoticeCard(item) {
+    var article = document.createElement('article');
+    var link = document.createElement('a');
+    article.className = 'notice-card card';
+    link.href = item.href || '#';
+    link.appendChild(createDateBlock('span', item.date, 'notice-date'));
+    link.appendChild(createTextElement('span', 'notice-title', item.title || ''));
+    article.appendChild(link);
+    return article;
+  }
+
   function initNoticeActiveState() {
-    // 通知区只需要视觉激活态，不需要替换内容，因此逻辑比新闻区更简单。
-    var grid = document.querySelector("[data-notice-grid]");
-    var cards = grid ? Array.from(grid.querySelectorAll(".notice-card")) : [];
+    var grid = document.querySelector('[data-notice-grid]');
+    var cards = grid ? Array.from(grid.querySelectorAll('.notice-card')) : [];
     if (!grid || !cards.length) {
       return;
     }
 
     function setActive(index) {
-      // 只保留一个通知卡片处于 is-active 状态，形成明确焦点。
       cards.forEach(function (card, cardIndex) {
-        card.classList.toggle("is-active", cardIndex === index);
+        card.classList.toggle('is-active', cardIndex === index);
       });
     }
 
     function clearActive() {
-      // 鼠标离开或焦点移出通知区时，移除所有通知卡片的强调状态。
       cards.forEach(function (card) {
-        card.classList.remove("is-active");
+        card.classList.remove('is-active');
       });
     }
 
@@ -334,16 +466,16 @@
       var activate = function () {
         setActive(index);
       };
-      card.addEventListener("mouseenter", activate);
-      card.addEventListener("focusin", activate);
-      card.addEventListener("click", function (event) {
+      card.addEventListener('mouseenter', activate);
+      card.addEventListener('focusin', activate);
+      card.addEventListener('click', function (event) {
         event.preventDefault();
         activate();
       });
     });
 
-    grid.addEventListener("mouseleave", clearActive);
-    grid.addEventListener("focusout", function (event) {
+    grid.addEventListener('mouseleave', clearActive);
+    grid.addEventListener('focusout', function (event) {
       if (!grid.contains(event.relatedTarget)) {
         clearActive();
       }
@@ -352,24 +484,54 @@
 
   /* ===== Quick Links ===== */
   function initQuickLinks() {
-    // 快速链接从 siteData 渲染，方便以后只改数据不改 HTML。
-    var container = document.querySelector("[data-quicklinks-list]");
+    var container = document.querySelector('[data-quicklinks-list]');
     var links = siteData.quickLinks || [];
     if (!container || !links.length) {
       return;
     }
 
-    container.textContent = "";
+    container.textContent = '';
     links.forEach(function (item) {
-      container.appendChild(createLink(item));
+      container.appendChild(createQuickLink(item));
     });
   }
 
+  function createQuickLink(item) {
+    var link = document.createElement('a');
+    var icon = document.createElement('span');
+    var text = document.createElement('span');
+    var name = document.createElement('span');
+
+    link.href = item.href || '#';
+    link.setAttribute('aria-label', item.name || item.title || '快速链接');
+    icon.className = 'quicklink-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = getQuickLinkIcon(item.icon);
+
+    text.className = 'quicklink-text';
+    name.className = 'quicklink-name';
+    name.textContent = item.name || item.title || '';
+
+    text.appendChild(name);
+    link.appendChild(icon);
+    link.appendChild(text);
+    return link;
+  }
+
+  function getQuickLinkIcon(type) {
+    var icons = {
+      portal: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9A2.5 2.5 0 0 1 17.5 17h-11A2.5 2.5 0 0 1 4 14.5v-9Z"></path><path d="M8 21h8M12 17v4M8 8h3M8 12h8M14 8h2"></path></svg>',
+      academic: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z"></path><path d="M7 11v4.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V11"></path><path d="M21 9v5"></path></svg>',
+      search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"></circle><path d="M15 15l4.5 4.5M6.5 10.5h8"></path></svg>',
+      lab: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5.2l-4.7 8.1A3 3 0 0 0 7.9 21h8.2a3 3 0 0 0 2.6-4.7L14 8.2V3"></path><path d="M8 15h8M9.2 18h5.6"></path></svg>'
+    };
+    return icons[type] || icons.portal;
+  }
+
   function createLink(item, className) {
-    // 首页私有的简单链接工厂，避免为 quickLinks 引入额外依赖。
-    var link = document.createElement("a");
-    link.href = item.href || "#";
-    link.textContent = item.name || item.title || "";
+    var link = document.createElement('a');
+    link.href = item.href || '#';
+    link.textContent = item.name || item.title || '';
     if (className) {
       link.className = className;
     }
@@ -377,6 +539,8 @@
   }
 
   /* ===== Init ===== */
+  renderNewsSection();
+  renderNotices();
   initSlider();
   initNewsActiveState();
   initNoticeActiveState();

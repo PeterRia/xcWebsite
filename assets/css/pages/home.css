@@ -1,284 +1,193 @@
 /* study-note: pages/home.css
- * 作用：首页专属样式，只描述 hero、新闻、通知、教学科研、学院风采、快速链接这些首页模块。
- * 加载位置：在 reset/base/layout/components 之后加载，所以可以直接使用全局变量、卡片、标题等基础能力。
- * 学习重点：每个大栏目独立成段，栏目内部先写容器网格，再写卡片元素，再写 hover/active 状态，最后统一写响应式覆盖。
- */
-/* ===== Hero Section / Slider =====
- * 这个版本按 https://sjc.pku.edu.cn/ 首页轮播复刻运动模型：
- * 1. 参考站调用 jQuery.SuperSlide：effect: "leftLoop"、vis: 3、autoPlay: true、autoPage: true、trigger: "click"。
- * 2. 参考站图片格宽 1200px、高 675px；这里保持同样主图尺寸，不改变现有视觉尺寸。
- * 3. 参考站中间 `.bd` 宽 1200px 并居中，插件外层 `.tempWrap` 是 3 格宽且 overflow: visible。
- * 4. 本页没有引入 SuperSlide，而是用 `.slider-viewport` 模拟 `.bd`，用 `.slider-track` 模拟插件移动的 `ul`。
- * 5. `.slider-viewport` 保持 1200px 居中且 overflow: visible，因此能同时看到左图、中图、右图三格。
- * 6. `.hero-slider` 是最外层裁剪容器，相当于参考站 `.slider`，只裁掉整条轨道超出页面的部分。
- * 7. 每次切换只移动 `.slider-track` 一格，即 `translate3d(-index * --slider-cell-width, 0, 0)`。
- * 8. 单张图片不改 opacity、不 scale、不 display:none，也不重新排版；动效只发生在整条轨道上。
- * 9. 首尾通过“最后一张克隆 + 原始 slide + 第一张克隆”完成，动画结束后无过渡瞬跳回真实项。
+ * 作用：首页主体栏目样式：轮播、学院新闻、通知公告、教学科研、新传风采、快速链接。
+ * 注意：页头、导航、页脚已经移到 layout.css，不在本文件重复维护。
  */
 .hero-section {
+  width: 100%;
   background: #fff;
 }
 
-/* 轮播外框：
- * width: 100% 让模块撑满页面横向空间。
- * height: min(56.25vw, 675px) 保留当前响应式尺寸策略；宽屏最高仍是参考站的 675px。
- * min-height: 360px 保证桌面窄窗口下轮播仍有足够展示高度。
- * overflow: hidden 对应参考站 `.slider { overflow:hidden; }`，负责裁掉页面外的超长轨道。
- * --slider-cell-width 默认 1200px，对应参考站 `.slider .bd li { width:1200px; }`。
- * JS 初始化后会用 `.slider-viewport.clientWidth` 覆盖它；桌面仍是 1200px，窄屏是当前屏宽。
- * --slider-motion-duration 默认 1000ms，对应 SuperSlide 默认 delayTime: 1000。
- * --slider-motion-easing 使用接近 jQuery swing/easeOutQuad 的曲线，模拟参考站 SuperSlide 的滑动节奏。
- */
 .hero-slider {
   position: relative;
   width: 100%;
-  height: min(56.25vw, 675px);
-  min-height: 360px;
+  max-width: none;
+  height: min(56.25vw, calc(100svh - var(--site-header-height, 116px) - var(--hero-first-screen-gap, 6px)));
+  min-height: var(--hero-min-height);
+  max-height: var(--hero-max-height);
+  margin: 0;
   overflow: hidden;
   background: #eee8e0;
-  --slider-cell-width: 1200px;
-  --slider-motion-duration: 1000ms;
-  --slider-motion-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --slider-cell-width: 100%;
 }
 
-/* 轮播视窗：
- * width: min(1200px, 100%) 对应参考站 `.slider .bd { width:1200px; }`，但允许窄屏不溢出。
- * height: 100% 继承 .hero-slider 的计算高度。
- * overflow: visible 是保留左右侧图的关键：
- * - 视窗本身仍然是“一格”的宽度，JS 用 viewport.clientWidth 计算每次横移距离。
- * - 轨道可以超出视窗左右边界，所以当前主图左侧能看到上一格，右侧能看到下一格。
- * - 最外层 .hero-slider 仍然 overflow: hidden，只负责防止超长轨道溢出整个轮播区域和页面。
- * margin: 0 auto 让 1200px 视窗在超宽屏中居中。
- */
 .slider-viewport {
   position: relative;
-  width: min(1200px, 100%);
+  width: 100%;
   height: 100%;
-  margin: 0 auto;
-  overflow: visible;
+  overflow: hidden;
 }
 
-/* 轮播轨道：
- * display: flex 把所有 slide 排成一条横向长带。
- * width: max-content 让轨道宽度由所有固定宽度 slide 叠加出来，而不是压缩进视窗。
- * height: 100% 让每格图片和视窗同高。
- * transition 只放在 transform 上，模拟参考站 SuperSlide 对 `ul.left` 的单轴横移动画。
- * duration=1000ms 对应参考站 delayTime: 1000。
- * easing 接近 jQuery swing，避免线性机械感，同时不引入淡入淡出。
- * will-change/backface-visibility 提前提示浏览器把横移动画放到合成层处理，减少抖动。
- */
 .slider-track {
   display: flex;
-  width: max-content;
   height: 100%;
-  transition: transform var(--slider-motion-duration) var(--slider-motion-easing);
+  transition: transform var(--motion-slider);
   will-change: transform;
   backface-visibility: hidden;
 }
 
-/* 无缝跳转状态：
- * JS 到达克隆 slide 后会短暂添加 is-jump。
- * transition: none 表示这一次 transform 变化不播放动画，用户看不到从克隆图跳回真实图的过程。
- */
 .slider-track.is-jump {
   transition: none;
 }
 
-/* 单个轮播格：
- * flex: 0 0 var(--slider-cell-width) 禁止伸缩，并把每格宽度锁死为 JS 写入的视窗宽度。
- * width 同步写一遍，兼容依赖 width 计算的浏览器布局路径。
- * height: 100% 表示每格高度始终等于视窗高度，不因图片比例或文字内容重新撑开。
- * overflow: hidden 只裁剪本格内部图片，不影响整条轨道的横向排列。
- */
 .slide {
   position: relative;
-  flex: 0 0 var(--slider-cell-width);
-  width: var(--slider-cell-width);
+  flex: 0 0 var(--slider-cell-width, 100%);
+  width: var(--slider-cell-width, 100%);
   height: 100%;
   overflow: hidden;
   background: #ddd;
 }
 
-/* 图片暗层：
- * 参考站中间主图不靠整图黑层做激活切换，左右暗层由 `.pnBtn .blackBg` 覆盖。
- * 因此这里的 slide::before 设为 transparent，只保留伪元素层位，避免改动结构。
- * pointer-events: none 确保遮罩不拦截箭头、圆点或 slide 内链接点击。
- */
+.slide-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+}
+
 .slide::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.08);
   pointer-events: none;
+  transition: opacity 0.28s ease;
 }
 
-/* 底部渐变遮罩：
- * 参考站使用 `.bd_opa` 在左下角放半透明标题条。
- * 当前 HTML 已有标题结构，为了不重写 HTML，这里保留固定底部可读性遮罩。
- * 它不随 active 状态变化，也不参与轮播动画。
- */
+.slide.is-active::before {
+  opacity: 0;
+}
+
 .slide::after {
   content: '';
   position: absolute;
   inset: auto 0 0;
   z-index: 2;
-  height: 42%;
-  background: linear-gradient(180deg, rgba(18, 12, 12, 0) 0%, rgba(16, 14, 14, 0.2) 28%, rgba(16, 14, 14, 0.68) 100%);
+  height: 38%;
+  background: linear-gradient(180deg, rgba(18, 12, 12, 0) 0%, rgba(16, 14, 14, 0.12) 28%, rgba(16, 14, 14, 0.58) 100%);
+  pointer-events: none;
 }
 
 .slide img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transform: none;
+  aspect-ratio: 16 / 9;
+  object-fit: var(--hero-image-fit, cover);
+  object-position: var(--hero-object-position, center center);
 }
 
-/* 标题层：
- * left: 50% + translateX(-50%) 用于水平居中标题块，不用于图片动画。
- * width: min(1100px, calc(100% - 56px)) 让文字两侧至少留 28px 安全边距。
- * z-index: 3 确保标题高于固定遮罩。
- */
 .slide-caption {
   position: absolute;
-  left: 50px;
-  bottom: 28px;
-  transform: none;
-  width: auto;
-  max-width: calc(100% - 100px);
+  left: 50%;
+  bottom: clamp(16px, 2.2vw, 30px);
+  transform: translateX(-50%);
+  width: min(1100px, calc(100% - clamp(28px, 5vw, 72px)));
   z-index: 3;
-  text-align: left;
+  text-align: center;
   color: #fff;
-  background: rgba(0, 0, 0, 0.42);
-  padding: 0 20px;
 }
 
 .slide-caption p {
-  display: none;
+  font-size: var(--font-size-hero-eyebrow);
+  line-height: 1.2;
+  letter-spacing: 0.4px;
+  margin-bottom: clamp(3px, 0.55vw, 6px);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
 }
 
 .slide-caption h2 {
-  height: 50px;
-  max-width: 100%;
-  overflow: hidden;
-  font-size: 24px;
-  line-height: 50px;
-  font-weight: 400;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: none;
+  font-size: var(--font-size-hero-title);
+  line-height: var(--line-hero-title);
+  font-weight: 800;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.42);
 }
 
-/* 左右箭头：
- * 参考站 `.pnBtn` 不是小按钮，而是覆盖左右侧图的大点击区域：
- * - `.prev` 宽 100%、left:-50%、margin-left:-600px，覆盖中图左侧区域。
- * - `.next` 宽 100%、left:50%、margin-left:600px，覆盖中图右侧区域。
- * - `.blackBg` 用 0.36 黑色透明度压暗侧图。
- * 这里用按钮本身模拟 `.pnBtn`，用 `::before` 模拟 `.blackBg`，用内部 svg 模拟 `.arrow`。
- */
 .slider-arrow {
   position: absolute;
-  top: 0;
-  transform: none;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(32px, 3.2vw, 44px);
+  height: clamp(32px, 3.2vw, 44px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  background: transparent;
-  z-index: 2;
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  z-index: 4;
+  transition: opacity 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  opacity: 0.94;
 }
 
-.slider-arrow::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #000;
-  opacity: 0.36;
-  transition: opacity 0.2s ease;
-}
-
-.slider-arrow:hover::before,
-.slider-arrow:focus-visible::before {
-  opacity: 0.5;
+.slider-arrow:hover,
+.slider-arrow:focus-visible {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.24);
 }
 
 .slider-arrow svg {
-  position: absolute;
-  top: 152px;
-  width: 60px;
-  height: 185px;
+  width: clamp(13px, 1.2vw, 16px);
+  height: clamp(19px, 1.8vw, 24px);
   stroke: currentColor;
-  stroke-width: 1.6;
+  stroke-width: 2.2;
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.9;
-  transition: opacity 0.2s ease;
-}
-
-.slider-arrow:hover svg,
-.slider-arrow:focus-visible svg {
-  opacity: 0.6;
 }
 
 .slider-arrow.prev {
-  left: -50%;
-  margin-left: calc(var(--slider-cell-width) / -2);
+  left: clamp(8px, 1.45vw, 20px);
 }
 
 .slider-arrow.next {
-  left: 50%;
-  margin-left: calc(var(--slider-cell-width) / 2);
+  right: clamp(8px, 1.45vw, 20px);
 }
 
-.slider-arrow.prev svg {
-  right: 20px;
-}
-
-.slider-arrow.next svg {
-  left: 15px;
-}
-
-/* 圆点分页器：
- * 参考站 `.hd li` 是 15px × 15px，bottom:14px，左右 margin 5px。
- * 激活态只换背景位置，不改变尺寸；这里用颜色模拟 sprite 的 on/off 两态。
- */
 .slider-dots {
   position: absolute;
   left: 50%;
-  bottom: 14px;
+  bottom: clamp(8px, 1.2vw, 18px);
   transform: translateX(-50%);
   display: flex;
-  gap: 0;
-  z-index: 2;
+  gap: clamp(7px, 0.75vw, 10px);
+  z-index: 4;
 }
 
 .dot {
-  width: 15px;
-  height: 15px;
+  width: clamp(7px, 0.75vw, 10px);
+  height: clamp(7px, 0.75vw, 10px);
   border-radius: 999px;
-  border: 0;
-  margin: 0 5px;
-  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.36);
 }
 
 .dot.is-active {
+  width: clamp(18px, 2vw, 28px);
   background: #fff;
 }
 
-/* ===== Content Sections =====
- * 所有首页栏目共享的上下留白。具体背景色和网格由各栏目自行覆盖。
- */
+.hero-slider.has-single-slide .slider-arrow,
+.hero-slider.has-single-slide .slider-dots {
+  display: none;
+}
+
 .content-section {
   padding: var(--section-gap) 0;
 }
 
-/* ===== News Section =====
- * 新闻区采用左侧大卡 + 右侧列表。右侧列表 hover/click 后，JS 会同步更新左侧大卡内容。
- */
 .news-section {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
@@ -292,30 +201,21 @@
   align-items: start;
 }
 
-/* News Feature (Left)
- * 左侧主新闻卡片：is-active 时变为主色背景，并用轻微 3D transform 做焦点反馈。
- */
 .news-feature {
   position: relative;
   z-index: 1;
   overflow: visible;
-  transition:
-    background var(--motion-normal),
-    transform var(--motion-normal),
-    box-shadow var(--motion-normal);
+  transition: background var(--motion-normal), transform var(--motion-normal), box-shadow var(--motion-normal);
 }
 
 .news-feature.is-active {
-  transform:
-    perspective(900px)
-    rotateX(calc(var(--hover-y, 0) * -2.4deg))
-    rotateY(calc(var(--hover-x, 0) * 2.4deg));
-  box-shadow: 0 20px 38px rgba(31, 95, 159, 0.22);
+  transform: perspective(900px) rotateX(calc(var(--hover-y, 0) * -2.4deg)) rotateY(calc(var(--hover-x, 0) * 2.4deg));
+  box-shadow: 0 20px 38px rgba(var(--color-primary-rgb), 0.18);
 }
 
 .news-feature:focus-within {
   z-index: 3;
-  box-shadow: 0 20px 38px rgba(31, 95, 159, 0.22);
+  box-shadow: 0 20px 38px rgba(var(--color-primary-rgb), 0.18);
 }
 
 .news-feature.is-active > a {
@@ -330,14 +230,6 @@
 .news-feature.is-active .news-copy h3,
 .news-feature.is-active .news-copy p {
   color: #fff;
-}
-
-.news-feature.is-active .date-badge {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.news-feature.is-active .date-badge span {
-  color: rgba(255, 255, 255, 0.9);
 }
 
 .news-feature > a {
@@ -358,43 +250,59 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--motion-normal);
-}
-
-.news-feature:hover .news-image img {
-  transform: scale(1.03);
 }
 
 .news-feature-body {
   display: grid;
-  grid-template-columns: 118px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: var(--date-card-width) minmax(0, 1fr);
+  gap: clamp(12px, 1.5vw, 18px);
   align-items: stretch;
-  padding: 16px 18px 24px;
+  padding: clamp(14px, 1.4vw, 18px) clamp(14px, 1.55vw, 18px) clamp(18px, 2vw, 24px);
+}
+
+.date-badge,
+.news-list-date,
+.notice-date {
+  min-width: 0;
 }
 
 .date-badge {
-  align-self: start;
+  align-self: stretch;
   background: var(--color-primary);
   color: #fff;
+  min-height: clamp(82px, 8.2vw, 108px);
+  border-radius: 1px;
+}
+
+.date-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 116px;
-  border-radius: 1px;
+  gap: clamp(5px, 0.7vw, 8px);
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
 }
 
-.date-badge strong {
-  font-size: 42px;
+.date-block-date,
+.date-block-year {
+  display: block;
+  font-family: var(--font-date);
+  font-weight: 900;
   line-height: 1;
-  font-weight: 800;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
-.date-badge span {
-  font-size: 14px;
-  line-height: 1;
+.date-block-date {
+  font-size: var(--font-size-date-day);
+  letter-spacing: -0.03em;
+}
+
+.date-block-year {
+  font-size: var(--font-size-date-year);
 }
 
 .news-copy {
@@ -405,73 +313,28 @@
 }
 
 .news-copy h3 {
-  font-size: clamp(18px, 1.55vw, 22px);
-  line-height: 1.5;
-  font-weight: 800;
+  font-size: var(--font-size-news-title-large);
+  line-height: var(--line-news-title-large);
+  font-weight: 700;
   color: #2d2623;
-  transition: color var(--motion-fast);
 }
 
 .news-copy h3.is-long-title {
-  font-size: clamp(16px, 1.28vw, 19px);
-  line-height: 1.45;
+  font-size: var(--font-size-news-title);
+  line-height: var(--line-news-title);
 }
 
 .news-copy p {
   margin-top: 10px;
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: var(--font-size-news-summary);
+  line-height: var(--line-news-summary);
   color: var(--color-muted);
-  transition: color var(--motion-fast);
 }
 
-/* News List (Right)
- * 右侧新闻列表：普通状态是一行标题+日期；is-active 状态变成日期块+大标题，形成主次切换效果。
- */
 .news-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.news-list-featured {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 18px;
-  align-items: center;
-  min-height: 124px;
-  background: var(--color-primary);
-  color: #fff;
-  box-shadow: var(--color-shadow);
-  padding: 16px 18px;
-}
-
-.news-list-date {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  border-right: 1px solid rgba(255, 255, 255, 0.22);
-  padding-right: 16px;
-}
-
-.news-list-date strong {
-  font-size: 40px;
-  line-height: 1;
-  font-weight: 800;
-}
-
-.news-list-date small {
-  font-size: 14px;
-  line-height: 1.2;
-  margin-top: 8px;
-}
-
-.news-list-featured a {
-  font-size: 22px;
-  line-height: 1.5;
-  font-weight: 800;
 }
 
 .news-list-item {
@@ -480,21 +343,17 @@
 
 .news-list-item a {
   display: grid;
-  grid-template-columns: 16px minmax(0, 1fr) auto;
-  grid-template-areas: "diamond title date";
-  gap: 12px;
+  grid-template-columns: 14px minmax(0, 1fr) var(--date-card-width-small);
+  grid-template-areas: 'diamond title date';
+  gap: 10px;
   align-items: center;
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(143, 43, 43, 0.12);
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.12);
   border-radius: 2px;
-  font-size: 17px;
-  line-height: 1.55;
+  font-size: var(--font-size-news-title);
+  line-height: var(--line-news-title);
   color: #403633;
-  transition:
-    transform 0.22s ease,
-    background 0.22s ease,
-    color 0.22s ease,
-    box-shadow 0.22s ease;
+  transition: transform 0.22s ease, background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
   overflow: hidden;
 }
 
@@ -505,10 +364,7 @@
   border: 2px solid var(--color-primary);
   transform: rotate(45deg);
   margin-left: 2px;
-  transition:
-    opacity 0.22s ease,
-    transform 0.22s ease,
-    border-color 0.22s ease;
+  transition: opacity 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
 }
 
 .news-title {
@@ -517,22 +373,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition:
-    font-size 0.22s ease,
-    line-height 0.22s ease,
-    color 0.22s ease;
+  transition: font-size 0.22s ease, line-height 0.22s ease, color 0.22s ease;
+}
+
+.news-list time {
+  grid-area: date;
+  justify-self: stretch;
+  color: var(--color-primary);
+  min-width: 0;
+  padding-left: 8px;
+  border-left: 1px solid rgba(var(--color-primary-rgb), 0.12);
+  transition: color 0.22s ease, border-color 0.22s ease, padding 0.22s ease;
+}
+
+.news-list time .date-block-date {
+  font-size: var(--font-size-date-list);
+}
+
+.news-list time .date-block-year {
+  font-size: var(--font-size-date-year-small);
 }
 
 .news-list-item.is-active a {
-  grid-template-columns: 96px minmax(0, 1fr);
-  grid-template-areas: "date title";
+  grid-template-columns: var(--date-card-width) minmax(0, 1fr);
+  grid-template-areas: 'date title';
   align-items: stretch;
-  min-height: 128px;
-  transform: translateX(8px);
+  min-height: clamp(96px, 8.8vw, 116px);
+  transform: translateX(6px);
   background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 10px 20px rgba(143, 43, 43, 0.18);
-  padding: 16px 18px;
+  box-shadow: 0 8px 18px rgba(var(--color-primary-rgb), 0.18);
+  padding: 14px 16px;
 }
 
 .news-list-item.is-active .diamond {
@@ -543,58 +414,30 @@
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
-  font-size: 22px;
-  line-height: 1.58;
-  font-weight: 800;
+  font-size: var(--font-size-news-title-large);
+  line-height: var(--line-news-title-large);
+  font-weight: 700;
   color: #fff;
-}
-
-.news-list time {
-  grid-area: date;
-  justify-self: end;
-  color: #7e736d;
-  font-size: 15px;
-  line-height: 1.3;
-  transition:
-    color 0.22s ease,
-    font-size 0.22s ease,
-    line-height 0.22s ease,
-    border-color 0.22s ease,
-    padding 0.22s ease;
 }
 
 .news-list-item.is-active time {
   align-self: stretch;
   justify-self: stretch;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-right: 16px;
+  padding: 0 14px 0 0;
+  border-left: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
-  font-size: 0;
-  line-height: 0;
 }
 
-.news-list-item.is-active time::before {
-  content: attr(data-day);
-  font-size: 40px;
-  line-height: 1;
-  font-weight: 800;
+.news-list-item.is-active time .date-block-date {
+  font-size: var(--font-size-date-day);
 }
 
-.news-list-item.is-active time::after {
-  content: attr(data-month);
-  margin-top: 8px;
-  font-size: 14px;
-  line-height: 1.2;
+.news-list-item.is-active time .date-block-year {
+  font-size: var(--font-size-date-year);
   color: rgba(255, 255, 255, 0.92);
 }
 
-/* ===== Notice Section =====
- * 通知公告使用双列卡片。JS 添加 is-active 后，卡片颜色、字号、日期块都会同步强化。
- */
 .notice-section {
   background:
     linear-gradient(180deg, rgba(247, 245, 242, 0.95), rgba(247, 245, 242, 0.95)),
@@ -609,30 +452,21 @@
 
 .notice-card > a {
   display: grid;
-  grid-template-columns: 102px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: var(--date-card-width) minmax(0, 1fr);
+  gap: clamp(12px, 1.5vw, 18px);
   align-items: center;
-  min-height: 112px;
-  padding: 20px 24px;
-  border: 1px solid rgba(143, 43, 43, 0.08);
+  min-height: clamp(92px, 8vw, 106px);
+  padding: clamp(16px, 1.6vw, 22px);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.08);
   background: #fff;
-  transition:
-    transform var(--motion-normal),
-    background var(--motion-normal),
-    color var(--motion-normal),
-    border-color var(--motion-normal),
-    box-shadow var(--motion-normal),
-    padding var(--motion-normal),
-    grid-template-columns var(--motion-normal);
+  transition: transform var(--motion-normal), background var(--motion-normal), color var(--motion-normal), border-color var(--motion-normal), box-shadow var(--motion-normal), padding var(--motion-normal);
 }
 
 .notice-card.is-active > a {
   transform: translateY(-2px);
   background: var(--color-primary);
   border-color: var(--color-primary);
-  box-shadow: 0 12px 24px rgba(143, 43, 43, 0.2);
-  padding-top: 24px;
-  padding-bottom: 24px;
+  box-shadow: 0 12px 24px rgba(var(--color-primary-rgb), 0.2);
 }
 
 .notice-card.is-active .notice-date,
@@ -640,68 +474,35 @@
   color: #fff;
 }
 
+.notice-date {
+  border-right: 1px solid rgba(var(--color-primary-rgb), 0.14);
+  padding-right: clamp(10px, 1.2vw, 16px);
+  min-height: clamp(68px, 6.4vw, 78px);
+  color: var(--color-primary);
+  transition: color var(--motion-normal), border-color var(--motion-normal), transform var(--motion-normal);
+}
+
 .notice-card.is-active .notice-date {
   border-right-color: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-}
-
-.notice-date {
-  border-right: 1px solid rgba(143, 43, 43, 0.14);
-  padding-right: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 72px;
-  color: var(--color-primary);
-  transition:
-    color var(--motion-normal),
-    border-color var(--motion-normal),
-    transform var(--motion-normal);
-}
-
-.notice-date strong {
-  font-size: 32px;
-  line-height: 1;
-  font-weight: 500;
-}
-
-.notice-date small {
-  font-size: 15px;
-  margin-top: 10px;
+  transform: scale(1.02);
 }
 
 .notice-title {
-  font-size: 20px;
-  line-height: 1.55;
+  font-size: var(--font-size-notice-title);
+  line-height: var(--line-notice-title);
   font-weight: 700;
   color: #26231f;
-  transition:
-    color var(--motion-normal),
-    font-size var(--motion-normal),
-    line-height var(--motion-normal);
-}
-
-.notice-card.is-active .notice-date strong {
-  font-size: 36px;
-}
-
-.notice-card.is-active .notice-date small {
-  font-size: 15px;
+  transition: color var(--motion-normal), font-size var(--motion-normal), line-height var(--motion-normal);
 }
 
 .notice-card.is-active .notice-title {
-  font-size: 24px;
-  line-height: 1.65;
-  white-space: normal;
+  font-size: clamp(15px, 1.16vw, 18px);
+  line-height: 1.5;
 }
 
-/* ===== Teaching Section =====
- * 教学科研区使用深红底色形成页面节奏变化，白色卡片在 hover 时切换为蓝色信息面板。
- */
 .teaching-section {
   background:
-    linear-gradient(180deg, rgba(143, 43, 43, 0.95), rgba(143, 43, 43, 0.95)),
+    linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.95), rgba(var(--color-primary-rgb), 0.95)),
     radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.06) 0 18%, transparent 19% 100%);
   color: #fff;
 }
@@ -715,24 +516,24 @@
 .teaching-card {
   position: relative;
   overflow: visible;
-  transition:
-    transform var(--motion-normal),
-    box-shadow var(--motion-normal);
+  transition: transform var(--motion-normal), box-shadow var(--motion-normal);
 }
 
 .teaching-card > a {
   display: grid;
   grid-template-columns: 56% 44%;
-  min-height: 310px;
+  align-items: start;
   background: #fff;
   color: #26221f;
 }
 
 .teaching-image {
   position: relative;
-  min-height: 100%;
+  aspect-ratio: var(--ratio-teaching-image);
+  width: 100%;
   overflow: hidden;
   z-index: 2;
+  background: #ddd;
   transition: transform var(--motion-normal);
 }
 
@@ -745,11 +546,7 @@
 
 .teaching-card:hover,
 .teaching-card:focus-within {
-  transform:
-    translateY(-6px)
-    perspective(900px)
-    rotateX(calc(var(--hover-y, 0) * -1.6deg))
-    rotateY(calc(var(--hover-x, 0) * 1.6deg));
+  transform: translateY(-6px) perspective(900px) rotateX(calc(var(--hover-y, 0) * -1.6deg)) rotateY(calc(var(--hover-x, 0) * 1.6deg));
   box-shadow: 0 18px 34px rgba(31, 95, 159, 0.24);
 }
 
@@ -784,13 +581,12 @@
 
 .teaching-copy {
   position: relative;
-  padding: 34px 28px;
+  min-height: 100%;
+  padding: clamp(22px, 2.25vw, 34px) clamp(18px, 1.85vw, 28px);
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  transition:
-    background var(--motion-normal),
-    color var(--motion-normal);
+  gap: clamp(12px, 1.2vw, 18px);
+  transition: background var(--motion-normal), color var(--motion-normal);
 }
 
 .teaching-copy::after {
@@ -800,16 +596,26 @@
   top: 10px;
   width: 48px;
   height: 74px;
-  border-left: 8px solid rgba(143, 43, 43, 0.08);
-  border-top: 8px solid rgba(143, 43, 43, 0.06);
+  border-left: 8px solid rgba(var(--color-primary-rgb), 0.08);
+  border-top: 8px solid rgba(var(--color-primary-rgb), 0.06);
   transform: skewY(-8deg);
 }
 
+.tag {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 6px 14px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: clamp(12px, 0.95vw, 16px);
+  line-height: 1;
+}
+
 .teaching-copy h3 {
-  font-size: 20px;
-  line-height: 1.6;
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.55;
   font-weight: 800;
-  min-height: 96px;
+  min-height: clamp(64px, 5.8vw, 96px);
 }
 
 .teaching-copy p {
@@ -821,13 +627,10 @@
 
 .teaching-copy time {
   margin-top: auto;
-  font-size: 15px;
+  font-size: clamp(12px, 0.95vw, 15px);
   color: #7a706b;
 }
 
-/* ===== Campus Section =====
- * 学院风采用不等分图片网格：左侧大图、右侧上方横图和下方双小图，适合展示校园/活动视觉素材。
- */
 .campus-section {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
@@ -854,9 +657,7 @@
 
 .campus-card {
   position: relative;
-  transition:
-    transform 0.28s ease,
-    box-shadow 0.28s ease;
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
 .campus-card a {
@@ -908,85 +709,144 @@
   opacity: 1;
 }
 
+.campus-card-large a {
+  aspect-ratio: var(--ratio-campus-large);
+}
+
+.campus-card-top a {
+  aspect-ratio: var(--ratio-campus-wide);
+}
+
+.campus-mini-grid .campus-card a {
+  aspect-ratio: var(--ratio-campus-small);
+}
+
 .campus-overlay span {
   display: block;
-  font-size: 20px;
+  font-size: clamp(15px, 1.15vw, 18px);
   line-height: 1.35;
   font-weight: 800;
   color: #fff;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.campus-card-large a {
-  aspect-ratio: 1.3 / 1;
-}
-
-.campus-card-top a {
-  aspect-ratio: 1.95 / 1;
-}
-
-.campus-mini-grid .campus-card a {
-  aspect-ratio: 1.18 / 1;
-}
-
-/* ===== Quicklinks Section =====
- * 快速链接是页面末尾的轻量入口，JS 会用 siteData.quickLinks 重新渲染，避免 HTML 和数据重复维护。
- */
 .quicklinks-section {
   padding-top: 28px;
   padding-bottom: 64px;
+  background: #f7f5f2;
 }
 
 .quicklinks-panel {
-  padding: 24px 28px;
+  position: relative;
+  padding: clamp(20px, 2.5vw, 32px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 18%, rgba(var(--color-primary-rgb), 0.10) 0 12%, transparent 13% 100%),
+    radial-gradient(circle at 92% 14%, rgba(31, 95, 159, 0.08) 0 14%, transparent 15% 100%),
+    linear-gradient(135deg, #ffffff 0%, #fff7f8 48%, #f7f9ff 100%);
+}
+
+.quicklinks-panel::after {
+  content: '';
+  position: absolute;
+  right: -44px;
+  top: -44px;
+  width: clamp(120px, 14vw, 210px);
+  height: clamp(120px, 14vw, 210px);
+  border-radius: 50%;
+  background: rgba(var(--color-primary-rgb), 0.06);
+  pointer-events: none;
 }
 
 .quicklinks-head {
-  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 18px;
 }
 
 .quicklinks-head h2 {
-  font-size: 32px;
+  font-size: clamp(22px, 2vw, 28px);
   line-height: 1.2;
   font-weight: 800;
   color: #2e2d2b;
 }
 
 .quicklinks-list {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0;
+  gap: 16px;
 }
 
 .quicklinks-list a {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
-  justify-content: center;
-  min-height: 74px;
-  font-size: 22px;
-  font-weight: 700;
+  min-height: 84px;
+  padding: 18px;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.12);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76)),
+    radial-gradient(circle at 100% 0, rgba(var(--color-primary-rgb), 0.11), transparent 40%);
   color: #2d2926;
-  border-left: 1px solid var(--color-border);
-  transition:
-    background var(--motion-fast),
-    color var(--motion-fast),
-    transform var(--motion-fast);
+  box-shadow: 0 8px 20px rgba(66, 36, 36, 0.08);
+  transition: background var(--motion-fast), color var(--motion-fast), transform var(--motion-fast), box-shadow var(--motion-fast), border-color var(--motion-fast);
 }
 
 .quicklinks-list a:hover,
 .quicklinks-list a:focus-visible {
-  background: var(--color-hover-blue);
+  background: var(--color-primary);
   color: #fff;
-  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 26px rgba(var(--color-primary-rgb), 0.18);
 }
 
-.quicklinks-list a:first-child {
-  border-left: 0;
+.quicklink-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  color: var(--color-primary);
+  background:
+    linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12), rgba(31, 95, 159, 0.08));
+  transition: background var(--motion-fast), color var(--motion-fast), transform var(--motion-fast);
 }
 
-/* ===== Responsive =====
- * 首页响应式集中在文件末尾：平板把多列布局降为单列，手机端进一步缩小字号、间距和图片比例。
- */
+.quicklinks-list a:hover .quicklink-icon,
+.quicklinks-list a:focus-visible .quicklink-icon {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(1.04);
+}
+
+.quicklink-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quicklink-text {
+  min-width: 0;
+}
+
+.quicklink-name {
+  display: block;
+  font-size: clamp(14px, 1.08vw, 17px);
+  line-height: 1.35;
+  font-weight: 800;
+}
+
 @media (max-width: 1024px) {
   .news-layout,
   .campus-grid,
@@ -997,130 +857,26 @@
   .quicklinks-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .quicklinks-list a {
-    border-top: 1px solid var(--color-border);
-  }
-
-  .quicklinks-list a:nth-child(-n + 2) {
-    border-top: 0;
-  }
 }
 
 @media (max-width: 767px) {
-  /* 手机端轮播外框：
-   * height: 56.25vw 继续保持 16:9 比例。
-   * min-height: 214px 保证 390px 左右屏宽下标题、箭头和圆点仍有可用空间。
-   * 宽度仍由 JS 写入 --slider-cell-width，不在媒体查询里写死。
-   */
   .hero-slider {
-    height: 56.25vw;
-    min-height: 214px;
-  }
-
-  /* 手机端视窗：
-   * width: 100% 表示一格宽度等于手机屏幕可用宽度。
-   * height: 100% 继续继承轮播外框高度。
-   * overflow 沿用桌面端的 visible；手机屏幕本身没有 1200px 两侧空余，所以不会强行制造侧图留白。
-   */
-  .slider-viewport {
     width: 100%;
-    height: 100%;
-  }
-
-  /* 手机端单格：
-   * 继续使用 --slider-cell-width，不改成 100%，避免 CSS 宽度和 JS transform 计算来源不一致。
-   * height: 100% 保证图片不因为自身比例把轮播撑高。
-   */
-  .slide {
-    flex-basis: var(--slider-cell-width);
-    width: var(--slider-cell-width);
-    height: 100%;
+    height: min(56.25vw, calc(100svh - var(--site-header-height, 60px)));
+    min-height: 180px;
   }
 
   .slide-caption {
-    bottom: 18px;
-    left: 14px;
-    max-width: calc(100% - 28px);
-    padding: 0 12px;
+    bottom: clamp(12px, 3.6vw, 18px);
+    width: calc(100% - 28px);
   }
 
-  .slide-caption p {
-    display: none;
-  }
-
-  .slide-caption h2 {
-    height: 42px;
-    font-size: 18px;
-    line-height: 42px;
-  }
-
-  /* 手机端箭头：
-   * 手机端没有桌面那种 1200px 主图两侧空间，左右按钮改回贴边小热区。
-   * 轨道移动模型仍是 leftLoop，不改变每格宽度。
-   */
-  .slider-arrow {
-    top: 0;
-    width: 42px;
-    height: 100%;
-    margin-left: 0;
-  }
-
-  .slider-arrow.prev {
-    left: 0;
-    right: auto;
-    margin-left: 0;
-  }
-
-  .slider-arrow.next {
-    left: auto;
-    right: 0;
-    margin-left: 0;
-  }
-
-  .slider-arrow svg {
-    top: 50%;
-    width: 24px;
-    height: 72px;
-    transform: translateY(-50%);
-  }
-
-  .slider-arrow.prev svg {
-    right: 8px;
-  }
-
-  .slider-arrow.next svg {
-    left: 8px;
-  }
-
-  /* 手机端圆点：
-   * 只调整 bottom 和 gap，以适配较矮的轮播。
-   * 激活态仍不改变宽度，防止分页器横向跳动。
-   */
   .slider-dots {
-    bottom: 10px;
-  }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    margin: 0 4px;
-  }
-
-  .dot.is-active {
-    background: #fff;
+    bottom: 8px;
   }
 
   .content-section {
     padding: 38px 0;
-  }
-
-  .section-head {
-    align-items: flex-end;
-  }
-
-  .section-head h2 {
-    font-size: 26px;
   }
 
   .news-layout {
@@ -1128,83 +884,35 @@
   }
 
   .news-feature-body {
-    grid-template-columns: 80px minmax(0, 1fr);
+    grid-template-columns: var(--date-card-width) minmax(0, 1fr);
     gap: 12px;
     padding: 14px 14px 18px;
   }
 
   .date-badge {
-    min-height: 90px;
-  }
-
-  .date-badge strong {
-    font-size: 30px;
-  }
-
-  .date-badge span {
-    font-size: 12px;
-  }
-
-  .news-copy h3 {
-    font-size: 17px;
-  }
-
-  .news-feature.is-active .news-copy h3,
-  .news-feature.is-active .news-copy p {
-    color: #fff;
+    min-height: 78px;
   }
 
   .news-copy p {
-    font-size: 13px;
-    line-height: 1.6;
-  }
-
-  .news-list-featured {
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 12px;
-    min-height: 96px;
-    padding: 14px;
-  }
-
-  .news-list-featured a {
-    font-size: 16px;
+    margin-top: 8px;
   }
 
   .news-list-item a {
-    grid-template-columns: 12px minmax(0, 1fr) auto;
-    grid-template-areas: "diamond title date";
+    grid-template-columns: 10px minmax(0, 1fr) var(--date-card-width-small);
     gap: 8px;
-    font-size: 14px;
-  }
-
-  .news-list time {
-    justify-self: end;
-    font-size: 12px;
+    padding: 9px 8px;
   }
 
   .news-list-item.is-active a {
-    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-columns: var(--date-card-width) minmax(0, 1fr);
     gap: 10px;
-    min-height: 104px;
-    padding: 12px 12px;
-  }
-
-  .news-list-item.is-active .news-title {
-    font-size: 16px;
-    line-height: 1.45;
+    min-height: 96px;
+    padding: 12px 10px;
+    transform: translateX(3px);
   }
 
   .news-list-item.is-active time {
-    padding-right: 10px;
-  }
-
-  .news-list-item.is-active time::before {
-    font-size: 28px;
-  }
-
-  .news-list-item.is-active time::after {
-    font-size: 11px;
-    margin-top: 6px;
+    padding-right: 8px;
   }
 
   .notice-grid {
@@ -1213,40 +921,23 @@
   }
 
   .notice-card > a {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: var(--date-card-width) minmax(0, 1fr);
     gap: 12px;
-    min-height: 92px;
-    padding: 16px;
+    min-height: 88px;
+    padding: 14px;
   }
 
   .notice-date {
     padding-right: 10px;
-  }
-
-  .notice-date strong {
-    font-size: 24px;
-  }
-
-  .notice-date small {
-    font-size: 12px;
-  }
-
-  .notice-title {
-    font-size: 15px;
-    line-height: 1.5;
+    min-height: 64px;
   }
 
   .notice-card.is-active > a {
-    padding-top: 18px;
-    padding-bottom: 18px;
-  }
-
-  .notice-card.is-active .notice-date strong {
-    font-size: 28px;
+    transform: translateX(3px);
   }
 
   .notice-card.is-active .notice-title {
-    font-size: 18px;
+    font-size: 14px;
     line-height: 1.45;
   }
 
@@ -1259,7 +950,7 @@
   }
 
   .teaching-image {
-    aspect-ratio: 390 / 240;
+    aspect-ratio: 16 / 9;
   }
 
   .teaching-copy {
@@ -1267,19 +958,14 @@
     gap: 12px;
   }
 
-  .teaching-copy::after {
-    font-size: 60px;
-  }
-
   .tag {
-    font-size: 13px;
+    font-size: 12px;
     padding: 5px 10px;
   }
 
   .teaching-copy h3 {
-    font-size: 16px;
-    line-height: 1.55;
-    min-height: 0;
+    font-size: 15px;
+    line-height: 1.5;
   }
 
   .teaching-copy time {
@@ -1298,7 +984,7 @@
   .campus-card-large a,
   .campus-card-top a,
   .campus-mini-grid .campus-card a {
-    aspect-ratio: 390 / 220;
+    aspect-ratio: 16 / 9;
   }
 
   .campus-overlay {
@@ -1315,25 +1001,21 @@
   }
 
   .quicklinks-panel {
-    padding: 18px 16px;
-  }
-
-  .quicklinks-head h2 {
-    font-size: 24px;
+    padding: 18px 14px;
   }
 
   .quicklinks-list {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .quicklinks-list a {
-    min-height: 56px;
-    border-left: 0;
-    border-top: 1px solid var(--color-border);
-    font-size: 16px;
+    min-height: 74px;
+    padding: 14px;
   }
 
-  .quicklinks-list a:first-child {
-    border-top: 0;
+  .quicklink-icon {
+    width: 40px;
+    height: 40px;
   }
 }

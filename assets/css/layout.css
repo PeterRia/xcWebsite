@@ -1,18 +1,13 @@
 /* study-note: layout.css
- * 作用：全站骨架层，包含页头、导航、搜索浮层、页脚、返回顶部和移动端抽屉。
- * 与 home.css 的关系：layout.css 负责每个页面都会出现的框架；home.css 只负责首页主体栏目。
- * 学习重点：同一个导航数据由 JS 渲染到桌面导航和移动抽屉，CSS 只关心不同容器的呈现方式。
- */
-/* ===== Site Header =====
- * 页头是全局最高层之一：z-index 30 保证下拉菜单和搜索浮层覆盖主体内容。
- * 背景使用学院主色，品牌 logo、快捷链接、搜索按钮都放在 masthead 内部。
+ * 作用：全站页头、导航、搜索图标、移动抽屉、页脚、返回顶部。
+ * 原则：layout.css 是所有页面共用骨架；首页具体栏目放在 pages/home.css。
  */
 .site-header {
   position: relative;
   z-index: 30;
   background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.18);
+  box-shadow: none;
 }
 
 .masthead {
@@ -20,12 +15,31 @@
 }
 
 .masthead-inner {
-  min-height: 116px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 18px;
+  min-height: var(--masthead-height);
+  padding: 0;
+  display: block;
   position: relative;
+}
+
+.brand {
+  position: absolute;
+  left: calc(var(--brand-anchor-x) + var(--header-logo-offset-x));
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--brand-logo-width);
+  height: var(--brand-logo-height);
+  min-width: 0;
+}
+
+.brand-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: var(--brand-logo-max-height);
+  object-fit: contain;
 }
 
 .nav-toggle {
@@ -33,46 +47,40 @@
 }
 
 .masthead-links {
-  grid-column: 2;
-  justify-self: end;
-  gap: 10px;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  min-width: 0;
-  justify-self: start;
-  grid-column: 1;
-}
-
-.brand-logo {
-  display: block;
-  width: min(700px, 64vw);
-  max-height: 110px;
-  object-fit: contain;
-}
-
-/* Topbar links
- * 桌面端显示在页头右上角；移动端同一批链接会由 JS 复制到抽屉的 utility 区域。
- */
-.topbar-links {
+  position: absolute;
+  right: 0;
+  top: var(--topbar-link-offset-y);
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 14px;
-  flex-wrap: wrap;
+  gap: 10px;
+  justify-self: end;
 }
 
 .topbar-links-list {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 0;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .topbar-links a {
-  color: rgba(255, 255, 255, 0.9);
+  position: relative;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--font-size-toplink);
+  line-height: 1.2;
+  padding: 0 10px;
+}
+
+.topbar-links a + a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 12px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.42);
 }
 
 .topbar-links a:hover,
@@ -80,21 +88,36 @@
   color: #fff;
 }
 
-/* Site search
- * 搜索框默认 hidden，由 main.js 切换 hidden 和 aria-expanded。
- * 浮层定位在页头内部，宽度用 min() 防止窄屏溢出。
- */
+.top-search-toggle {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+}
+
+.top-search-toggle:hover,
+.top-search-toggle:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.top-search-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
 .site-search-popover {
   position: absolute;
   right: 0;
-  top: calc(100% + 10px);
-  width: min(420px, calc(100vw - 24px));
-  padding: 16px;
+  top: calc(var(--topbar-link-offset-y) + 34px);
+  width: min(380px, calc(100vw - 24px));
+  padding: 14px;
   background: #fff;
   color: #2d2623;
   border-radius: var(--radius-sm);
   box-shadow: 0 22px 42px rgba(31, 39, 52, 0.2);
-  z-index: 40;
+  z-index: 80;
 }
 
 .site-search-form {
@@ -103,7 +126,7 @@
 }
 
 .site-search-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-primary);
 }
@@ -117,67 +140,68 @@
 .site-search-field input {
   width: 100%;
   min-width: 0;
-  height: 42px;
-  border: 1px solid rgba(143, 43, 43, 0.18);
+  height: 40px;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.18);
   border-radius: 999px;
-  padding: 0 16px;
-  font-size: 15px;
+  padding: 0 14px;
+  font-size: 14px;
   color: #2d2623;
   background: #fff;
 }
 
 .site-search-field input:focus {
-  outline: 2px solid rgba(143, 43, 43, 0.18);
+  outline: 2px solid rgba(var(--color-primary-rgb), 0.18);
   outline-offset: 1px;
 }
 
 .site-search-submit {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--color-primary);
   color: #fff;
 }
 
 .site-search-submit svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   stroke-width: 2;
 }
 
-/* ===== Main Navigation =====
- * 桌面主导航：横向 flex 等分，每个 .nav-item 都可以承载一个 mega-menu。
- * 手机端直接隐藏，改用左侧移动抽屉，避免导航项过多导致换行拥挤。
- */
 .main-nav {
-  border-top: 1px solid rgba(255, 255, 255, 0.13);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .main-nav .wrap {
   position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 .nav-list {
   display: flex;
   align-items: stretch;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: center;
+  gap: 0;
+  margin-right: 0;
+  transform: translateX(var(--header-nav-offset-x));
 }
 
 .nav-item {
   position: relative;
+  flex: 0 0 var(--nav-item-width);
+  width: var(--nav-item-width);
   min-width: 0;
-  flex: 1 1 auto;
 }
 
 .nav-item > a {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 58px;
-  padding: 0 6px;
-  font-size: 17px;
+  min-height: var(--line-nav);
+  padding: 0 8px;
+  font-size: var(--font-size-nav);
   font-weight: 700;
   line-height: 1.2;
   color: #fff;
@@ -188,13 +212,9 @@
 .nav-item > a:hover,
 .nav-item > a:focus-visible,
 .nav-item.is-open > a {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.10);
 }
 
-/* ===== Mega Menu (Dropdown) =====
- * 下拉菜单通过 opacity/visibility/pointer-events 三件套控制显示，既能过渡动画，也能避免隐藏菜单被误点击。
- * hover、focus-within、JS 添加的 is-open 都能打开菜单，兼顾鼠标、键盘和触屏环境。
- */
 .mega-menu {
   position: absolute;
   left: 0;
@@ -203,12 +223,12 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(8px);
+  transform: translateY(6px);
   transition:
     opacity var(--motion-fast),
     transform var(--motion-fast),
     visibility var(--motion-fast);
-  z-index: 50;
+  z-index: 70;
 }
 
 .nav-item:hover .mega-menu,
@@ -221,50 +241,40 @@
 }
 
 .mega-panel {
+  width: 100%;
   background: var(--color-hover-blue);
   color: #fff;
-  box-shadow: 0 20px 40px rgba(23, 74, 124, 0.26);
-  border-top: 3px solid var(--color-hover-blue-dark);
-  border-radius: 0 0 8px 8px;
-  padding: 12px 0;
+  box-shadow: 0 16px 28px rgba(23, 74, 124, 0.20);
+  border-top: 2px solid var(--color-hover-blue-dark);
+  border-radius: 0 0 4px 4px;
 }
 
 .mega-column {
   display: flex;
   flex-direction: column;
-}
-
-.mega-column h3 {
-  font-size: 14px;
-  line-height: 1.2;
-  font-weight: 800;
-  margin-bottom: 8px;
-  padding: 0 16px;
-  color: #fff;
+  padding: 6px 0;
 }
 
 .mega-column a {
-  display: block;
-  padding: 8px 16px;
-  font-size: 14px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.9);
-  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--line-subnav);
+  padding: 5px 8px;
+  font-size: var(--font-size-subnav);
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+  word-break: keep-all;
   transition: background var(--motion-fast), color var(--motion-fast);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .mega-column a:hover,
 .mega-column a:focus-visible {
   color: #fff;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.13);
 }
 
-/* ===== Site Footer =====
- * 页脚复用主色形成首尾呼应。上半部分为链接矩阵，下半部分为品牌信息和联系方式。
- */
 .site-footer {
   background: var(--color-primary);
   color: rgba(255, 255, 255, 0.9);
@@ -273,23 +283,32 @@
 
 .footer-columns {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 16px 16px;
 }
 
 .footer-column h3 {
-  margin-bottom: 18px;
-  font-size: 18px;
-  line-height: 1.2;
+  margin-bottom: 10px;
+  font-size: var(--font-size-footer-heading);
+  line-height: 1.18;
   font-weight: 800;
+  color: #fff;
+}
+
+.footer-column h3 a {
+  display: inline-block;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: inherit;
   color: #fff;
 }
 
 .footer-column a {
   display: block;
-  padding: 6px 0;
-  font-size: 16px;
-  line-height: 1.35;
+  padding: 3px 0;
+  font-size: var(--font-size-footer-link);
+  line-height: var(--line-footer-link);
   color: rgba(255, 255, 255, 0.72);
   transition: color var(--motion-fast);
 }
@@ -307,30 +326,62 @@
 
 .footer-bottom {
   display: grid;
-  grid-template-columns: 1fr 1.35fr;
-  gap: 28px;
+  grid-template-columns: minmax(300px, 0.95fr) minmax(0, 1.35fr);
+  gap: 30px;
   align-items: center;
 }
 
 .footer-brand {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 22px;
+}
+
+.footer-logo-block {
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .footer-logo {
+  display: block;
+  width: min(360px, 30vw);
+  max-height: 72px;
+  object-fit: contain;
+  flex: none;
+}
+
+.footer-qr-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.footer-qr {
   width: 100px;
   height: 100px;
-  border: 2px dashed rgba(255, 255, 255, 0.55);
-  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
   font-size: 13px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.06);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px) 0 0/18px 18px,
+    linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px) 0 0/18px 18px,
+    rgba(255, 255, 255, 0.06);
+}
+
+.footer-qr-label {
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+  color: #fff;
 }
 
 .footer-brand-copy {
@@ -340,33 +391,30 @@
 }
 
 .footer-brand-copy strong {
-  font-size: 26px;
-  line-height: 1.1;
+  font-size: clamp(18px, 1.35vw, 22px);
+  line-height: 1.12;
   font-weight: 800;
   color: #fff;
 }
 
 .footer-brand-copy span {
-  font-size: 16px;
+  font-size: clamp(12px, 0.86vw, 14px);
   color: rgba(255, 255, 255, 0.9);
 }
 
 .footer-contact h3 {
-  font-size: 18px;
-  line-height: 1.4;
-  margin-bottom: 12px;
+  font-size: var(--font-size-footer-heading);
+  line-height: 1.35;
+  margin-bottom: 10px;
   color: #fff;
 }
 
 .footer-contact p {
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: var(--font-size-footer-link);
+  line-height: 1.55;
   color: rgba(255, 255, 255, 0.82);
 }
 
-/* ===== Back to Top =====
- * 返回顶部按钮默认透明且不响应点击，滚动超过阈值后由 JS 添加 is-visible。
- */
 .back-to-top {
   position: fixed;
   right: 22px;
@@ -374,7 +422,7 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: rgba(143, 43, 43, 0.95);
+  background: rgba(var(--color-primary-rgb), 0.95);
   color: #fff;
   box-shadow: 0 10px 24px rgba(55, 20, 20, 0.28);
   opacity: 0;
@@ -399,14 +447,10 @@
   fill: currentColor;
 }
 
-/* ===== Mobile Drawer =====
- * 移动抽屉使用 fixed 覆盖全屏，backdrop 负责遮罩，panel 通过 translateX 实现滑入滑出。
- * body.menu-open 会锁住底层页面滚动。
- */
 .mobile-drawer {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 90;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.22s ease;
@@ -441,14 +485,14 @@
 }
 
 .mobile-drawer-head {
-  height: 70px;
+  height: 64px;
   padding: 0 18px 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: var(--color-primary);
   color: #fff;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
 }
 
@@ -468,10 +512,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 40px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 15px;
+  font-size: 14px;
   color: var(--color-primary);
   background: #fff;
 }
@@ -487,11 +531,11 @@
 .mobile-nav summary {
   list-style: none;
   cursor: pointer;
-  min-height: 54px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #2e2927;
 }
@@ -502,7 +546,7 @@
 
 .mobile-nav summary::after {
   content: '+';
-  font-size: 22px;
+  font-size: 20px;
   color: var(--color-primary);
 }
 
@@ -520,7 +564,7 @@
 .mobile-nav-link {
   display: block;
   padding: 6px 0;
-  font-size: 15px;
+  font-size: 14px;
   color: #5c5450;
 }
 
@@ -530,116 +574,53 @@
   color: var(--color-primary);
 }
 
-/* ===== Responsive =====
- * 响应式策略：先压缩 logo 和导航字号；到 767px 以下隐藏桌面导航，启用移动端按钮和抽屉。
- */
 @media (max-width: 1180px) {
+  .footer-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 920px) {
   .masthead-inner {
-    min-height: 104px;
-  }
-
-  .brand-logo {
-    width: min(560px, 58vw);
-    max-height: 90px;
-  }
-
-  .nav-list {
+    min-height: var(--masthead-height);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
     gap: 8px;
   }
 
-  .nav-item > a {
-    font-size: 15px;
-    padding: 0 6px;
+  .brand {
+    position: static;
+    left: auto;
+    top: auto;
+    transform: none;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
   }
 
-  .footer-columns {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .footer-bottom {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 1024px) {
-  .masthead-inner {
-    min-height: 96px;
-    gap: 14px;
-  }
-
-  .brand-logo {
-    width: min(500px, 55vw);
-    max-height: 80px;
-  }
-
-  .nav-list {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0;
-  }
-
-  .nav-item {
-    flex: 0 1 auto;
-  }
-
-  .nav-item > a {
-    min-height: 50px;
-    padding: 0 12px;
-  }
-
-  .footer-columns {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .footer-bottom {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 767px) {
   .topbar-links-list {
     display: none;
   }
 
-  .masthead {
-    position: relative;
-  }
-
-  .masthead-inner {
-    min-height: 74px;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: 10px;
-  }
-
   .nav-toggle {
+    display: inline-flex;
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
-    display: inline-flex;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
   }
 
   .masthead-links {
+    position: static;
     grid-column: 3;
     grid-row: 1;
-    justify-self: end;
-  }
-
-  .brand {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: start;
-    align-self: center;
-    min-width: 0;
   }
 
   .top-search-toggle {
-    width: 38px;
-    height: 38px;
-  }
-
-  .brand-logo {
-    width: min(255px, 64vw);
-    max-height: 48px;
+    width: 36px;
+    height: 36px;
   }
 
   .site-search-popover {
@@ -651,6 +632,13 @@
   .main-nav {
     display: none;
   }
+}
+
+@media (max-width: 767px) {
+  .masthead-inner {
+    min-height: var(--masthead-height);
+    padding: 0;
+  }
 
   .footer-columns {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -658,12 +646,11 @@
   }
 
   .footer-column h3 {
-    font-size: 16px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .footer-column a {
-    font-size: 14px;
+    padding: 3px 0;
   }
 
   .footer-divider {
@@ -675,31 +662,48 @@
   }
 
   .footer-brand {
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
   }
 
+  .footer-logo-block {
+    align-items: center;
+  }
+
   .footer-logo {
+    width: min(210px, 58vw);
+    max-height: 46px;
+  }
+
+  .footer-qr-group {
+    align-items: flex-start;
+  }
+
+  .footer-qr {
     width: 66px;
     height: 66px;
-    font-size: 20px;
+    font-size: 10px;
+  }
+
+  .footer-qr-label {
+    font-size: 12px;
   }
 
   .footer-brand-copy strong {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .footer-brand-copy span {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .footer-contact h3 {
-    font-size: 16px;
+    font-size: var(--font-size-footer-heading);
   }
 
   .footer-contact p {
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: var(--font-size-footer-link);
+    line-height: 1.55;
   }
 
   .back-to-top {

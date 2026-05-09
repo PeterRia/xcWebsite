@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="乐山师范学院新闻与传媒学院官网首页，包含轮播、学院新闻、通知公告、教学科研、学院风采、快速链接与页脚信息。">
+  <meta name="description" content="乐山师范学院新闻与传媒学院官网首页，包含轮播、学院新闻、通知公告、教学科研、新传风采、快速链接与页脚信息。">
   <title>乐山师范学院新闻与传媒学院</title>
   <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/base.css">
@@ -25,7 +25,7 @@
 
           <div class="topbar-links masthead-links" aria-label="快捷链接">
             <span class="topbar-links-list" data-topbar-links-list></span>
-            <button class="icon-button top-search-toggle" type="button" aria-label="打开站内搜索" aria-controls="siteSearchPopover" aria-expanded="false">
+            <button class="icon-button top-search-toggle" type="button" aria-label="打开搜索" aria-controls="siteSearchPopover" aria-expanded="false">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="11" cy="11" r="6.5"></circle>
                 <path d="M16 16l4 4"></path>
@@ -39,7 +39,7 @@
 
           <div class="site-search-popover" id="siteSearchPopover" hidden>
             <form class="site-search-form" action="#" method="get">
-              <label class="site-search-label" for="siteSearchInput">站内搜索</label>
+              <label class="site-search-label" for="siteSearchInput">搜索</label>
               <div class="site-search-field">
                 <input id="siteSearchInput" name="q" type="search" placeholder="请输入关键词">
                 <button class="icon-button site-search-submit" type="submit" aria-label="搜索">
@@ -81,60 +81,10 @@
     <!-- ===== Main ===== -->
     <main class="site-main">
       <!-- Hero Slider -->
-      <section class="hero-section">
+      <section class="hero-section" aria-label="学院重点轮播">
         <div class="hero-slider" data-slider>
           <div class="slider-viewport">
-            <div class="slider-track">
-              <article class="slide is-active">
-                <img src="assets/images/lsnu_hero_01.jpg" alt="2025年四川省广播影视高等教育学术年会在乐山举行">
-                <div class="slide-caption">
-                  <p>学院主轮播</p>
-                  <h2>2025年四川省广播影视高等教育学术年会在乐山举行</h2>
-                </div>
-              </article>
-              <article class="slide">
-                <img src="assets/images/lsnu_hero_02.jpg" alt="2025年四川省广播影视高等教育学术年会在乐山举行">
-                <div class="slide-caption">
-                  <p>学院主轮播</p>
-                  <h2>2025年四川省广播影视高等教育学术年会在乐山举行</h2>
-                </div>
-              </article>
-              <article class="slide">
-                <img src="assets/images/lsnu_hero_03.jpg" alt="新闻与传媒学院师生赴峨眉山市融媒体中心参观学习">
-                <div class="slide-caption">
-                  <p>实践教学</p>
-                  <h2>新闻与传媒学院师生赴峨眉山市融媒体中心参观学习</h2>
-                </div>
-              </article>
-              <article class="slide">
-                <img src="assets/images/lsnu_hero_04.jpg" alt="新闻与传媒学院师生赴沐川县融媒体中心开展实践教学">
-                <div class="slide-caption">
-                  <p>实践教学</p>
-                  <h2>新闻与传媒学院师生赴沐川县融媒体中心开展实践教学</h2>
-                </div>
-              </article>
-              <article class="slide">
-                <img src="assets/images/lsnu_hero_05.png" alt="传播学院专题宣传图">
-                <div class="slide-caption">
-                  <p>专题活动</p>
-                  <h2>新传琢玉读书会正式启动</h2>
-                </div>
-              </article>
-              <article class="slide">
-                <img src="assets/images/lsnu_hero_06.png" alt="融媒实践宣传图">
-                <div class="slide-caption">
-                  <p>学术交流</p>
-                  <h2>新闻与传媒学院举办传媒一线专题交流讲座</h2>
-                </div>
-              </article>
-              <article class="slide">
-                <img src="assets/images/lsnu_hero_07.png" alt="通知公告专题图">
-                <div class="slide-caption">
-                  <p>学院公告</p>
-                  <h2>学院通知公告与专题活动信息同步更新</h2>
-                </div>
-              </article>
-            </div>
+            <div class="slider-track" data-hero-track></div>
           </div>
 
           <button class="slider-arrow prev" type="button" aria-label="上一张">
@@ -148,15 +98,7 @@
             </svg>
           </button>
 
-          <div class="slider-dots" role="tablist" aria-label="轮播切换">
-            <button class="dot is-active" type="button" aria-label="切换到第 1 张"></button>
-            <button class="dot" type="button" aria-label="切换到第 2 张"></button>
-            <button class="dot" type="button" aria-label="切换到第 3 张"></button>
-            <button class="dot" type="button" aria-label="切换到第 4 张"></button>
-            <button class="dot" type="button" aria-label="切换到第 5 张"></button>
-            <button class="dot" type="button" aria-label="切换到第 6 张"></button>
-            <button class="dot" type="button" aria-label="切换到第 7 张"></button>
-          </div>
+          <div class="slider-dots" role="tablist" aria-label="轮播切换" data-hero-dots></div>
         </div>
       </section>
 
@@ -168,68 +110,8 @@
             <a class="more-link" href="pages/news/index.html">查看更多 +</a>
           </div>
           <div class="news-layout" data-news-section>
-            <article class="news-feature card is-active" data-news-feature>
-              <a href="#">
-                <div class="news-image">
-                  <img src="assets/images/lsnu_news_01.jpg" alt="新闻与传媒学院2026届考研成绩取得历史性突破">
-                </div>
-                <div class="news-feature-body">
-                  <div class="date-badge">
-                    <strong>30</strong>
-                    <span>2026-04</span>
-                  </div>
-                  <div class="news-copy">
-                    <h3>新闻与传媒学院2026届考研成绩取得历史性突破</h3>
-                    <p>学院共有24名学子成功上岸，录取人数较2025届增长33%，创历史新高。</p>
-                  </div>
-                </div>
-              </a>
-            </article>
-
-            <div class="news-list" data-news-list>
-              <article class="news-list-item" data-news-index="0">
-                <a href="#">
-                  <span class="diamond" aria-hidden="true"></span>
-                  <span class="news-title">研途领航，薪火相传——新传学院考研经验分享会成功举办</span>
-                  <time datetime="2026-04-30" data-day="30" data-month="2026-04">2026-04-30</time>
-                </a>
-              </article>
-              <article class="news-list-item" data-news-index="1">
-                <a href="#">
-                  <span class="diamond" aria-hidden="true"></span>
-                  <span class="news-title">我院教师参加"数智时代的新闻传播使命与创新"学术研讨会并作报告</span>
-                  <time datetime="2026-04-27" data-day="27" data-month="2026-04">2026-04-27</time>
-                </a>
-              </article>
-              <article class="news-list-item" data-news-index="2">
-                <a href="#">
-                  <span class="diamond" aria-hidden="true"></span>
-                  <span class="news-title">我院青年教师胡明受邀参加《全球传媒学刊》学术活动</span>
-                  <time datetime="2026-04-24" data-day="24" data-month="2026-04">2026-04-24</time>
-                </a>
-              </article>
-              <article class="news-list-item" data-news-index="3">
-                <a href="#">
-                  <span class="diamond" aria-hidden="true"></span>
-                  <span class="news-title">深挖文化底蕴 共探艺术价值——新闻与传媒学院举办学术讲座</span>
-                  <time datetime="2026-04-10" data-day="10" data-month="2026-04">2026-04-10</time>
-                </a>
-              </article>
-              <article class="news-list-item" data-news-index="4">
-                <a href="#">
-                  <span class="diamond" aria-hidden="true"></span>
-                  <span class="news-title">新闻与传媒学院"微专业"线下宣讲活动成功举办</span>
-                  <time datetime="2026-04-10" data-day="10" data-month="2026-04">2026-04-10</time>
-                </a>
-              </article>
-              <article class="news-list-item" data-news-index="5">
-                <a href="#">
-                  <span class="diamond" aria-hidden="true"></span>
-                  <span class="news-title">新闻与传媒学院召开2026年度春季学期家庭经济困难学生认定工作会</span>
-                  <time datetime="2026-04-03" data-day="03" data-month="2026-04">2026-04-03</time>
-                </a>
-              </article>
-            </div>
+            <article class="news-feature card is-active" data-news-feature></article>
+            <div class="news-list" data-news-list></div>
           </div>
         </div>
       </section>
@@ -241,62 +123,7 @@
             <h2>通知公告</h2>
             <a class="more-link" href="pages/notices/index.html">查看更多 +</a>
           </div>
-          <div class="notice-grid" data-notice-grid>
-            <article class="notice-card card">
-              <a href="#">
-                <span class="notice-date">
-                  <strong>22</strong>
-                  <small>2026-04</small>
-                </span>
-                <span class="notice-title">新传学院2026年度"学生资助宣传大使"拟推荐名单公示</span>
-              </a>
-            </article>
-            <article class="notice-card card">
-              <a href="#">
-                <span class="notice-date">
-                  <strong>21</strong>
-                  <small>2026-04</small>
-                </span>
-                <span class="notice-title">征稿通知丨2026年跨文化传播研究工作坊</span>
-              </a>
-            </article>
-            <article class="notice-card card">
-              <a href="#">
-                <span class="notice-date">
-                  <strong>24</strong>
-                  <small>2026-03</small>
-                </span>
-                <span class="notice-title">新闻与传媒学院2026年实验室开放项目公示</span>
-              </a>
-            </article>
-            <article class="notice-card card">
-              <a href="#">
-                <span class="notice-date">
-                  <strong>16</strong>
-                  <small>2026-03</small>
-                </span>
-                <span class="notice-title">关于2026届学生毕业论文形式规范检测的通知</span>
-              </a>
-            </article>
-            <article class="notice-card card">
-              <a href="#">
-                <span class="notice-date">
-                  <strong>12</strong>
-                  <small>2026-01</small>
-                </span>
-                <span class="notice-title">乐山师范学院党委第五轮巡察公告</span>
-              </a>
-            </article>
-            <article class="notice-card card">
-              <a href="#">
-                <span class="notice-date">
-                  <strong>05</strong>
-                  <small>2026-01</small>
-                </span>
-                <span class="notice-title">【琢玉论坛】学术论文写作规范与期刊选稿要求</span>
-              </a>
-            </article>
-          </div>
+          <div class="notice-grid" data-notice-grid></div>
         </div>
       </section>
 
@@ -311,7 +138,7 @@
             <article class="teaching-card card">
               <a href="#">
                 <div class="teaching-image">
-                  <img src="assets/images/lsnu_news_02.jpg" alt="新闻与传媒学院举办传媒一线专题交流讲座">
+                  <img src="assets/images/home/research/research-01.jpg" alt="新闻与传媒学院举办传媒一线专题交流讲座">
                 </div>
                 <div class="teaching-copy">
                   <span class="tag">重点专题</span>
@@ -324,7 +151,7 @@
             <article class="teaching-card card">
               <a href="#">
                 <div class="teaching-image">
-                  <img src="assets/images/lsnu_news_03.jpg" alt="《新闻界》责任编辑徐秋染受邀在琢玉论坛开讲">
+                  <img src="assets/images/home/research/research-02.jpg" alt="《新闻界》责任编辑徐秋染受邀在琢玉论坛开讲">
                 </div>
                 <div class="teaching-copy">
                   <span class="tag">学术论坛</span>
@@ -337,7 +164,7 @@
             <article class="teaching-card card">
               <a href="#">
                 <div class="teaching-image">
-                  <img src="assets/images/lsnu_news_04.png" alt="天津大学庞华教授受邀在琢玉论坛开讲">
+                  <img src="assets/images/home/research/research-03.jpg" alt="天津大学庞华教授受邀在琢玉论坛开讲">
                 </div>
                 <div class="teaching-copy">
                   <span class="tag">学术论坛</span>
@@ -350,7 +177,7 @@
             <article class="teaching-card card">
               <a href="#">
                 <div class="teaching-image">
-                  <img src="assets/images/lsnu_news_05.png" alt="西南民族大学新闻传播学院邓备教授莅临我院开展讲座">
+                  <img src="assets/images/home/research/research-04.jpg" alt="西南民族大学新闻传播学院邓备教授莅临我院开展讲座">
                 </div>
                 <div class="teaching-copy">
                   <span class="tag">学术交流</span>
@@ -368,13 +195,13 @@
       <section class="content-section campus-section">
         <div class="wrap">
           <div class="section-head">
-            <h2>学院风采</h2>
+            <h2>新传风采</h2>
             <a class="more-link" href="pages/campus/index.html">查看更多 +</a>
           </div>
           <div class="campus-grid">
             <article class="campus-card campus-card-large card">
               <a href="#">
-                <img src="assets/images/lsnu_hero_05.png" alt="学院风采展示图一">
+                <img src="assets/images/home/campus/campus-01.jpg" alt="新传风采展示图一">
                 <div class="campus-overlay">
                   <span>新传琢玉读书会正式启动</span>
                 </div>
@@ -384,7 +211,7 @@
             <div class="campus-side">
               <article class="campus-card campus-card-top card">
                 <a href="#">
-                  <img src="assets/images/lsnu_hero_06.png" alt="学院风采展示图二">
+                  <img src="assets/images/home/campus/campus-02.jpg" alt="新传风采展示图二">
                   <div class="campus-overlay">
                     <span>新闻与传媒学院举办传媒一线专题交流讲座</span>
                   </div>
@@ -393,7 +220,7 @@
               <div class="campus-mini-grid">
                 <article class="campus-card card">
                   <a href="#">
-                    <img src="assets/images/lsnu_hero_03.jpg" alt="学院风采展示图三">
+                    <img src="assets/images/home/campus/campus-03.jpg" alt="新传风采展示图三">
                     <div class="campus-overlay">
                       <span>融媒实践教学</span>
                     </div>
@@ -401,7 +228,7 @@
                 </article>
                 <article class="campus-card card">
                   <a href="#">
-                    <img src="assets/images/lsnu_hero_04.jpg" alt="学院风采展示图四">
+                    <img src="assets/images/home/campus/campus-04.jpg" alt="新传风采展示图四">
                     <div class="campus-overlay">
                       <span>实践基地参访</span>
                     </div>
@@ -421,12 +248,10 @@
               <h2>快速链接</h2>
             </div>
             <div class="quicklinks-list" data-quicklinks-list>
-              <a href="pages/about/index.html">学院概况</a>
-              <a href="pages/news/index.html">学院新闻</a>
-              <a href="pages/notices/index.html">通知公告</a>
-              <a href="pages/research/index.html">科学研究</a>
-            <a href="pages/education/index.html">学生教育</a>
-            <a href="pages/admissions/index.html">招生就业</a>
+              <a href="#">数字校园门户</a>
+              <a href="#">教务管理系统</a>
+              <a href="#">学术检索</a>
+              <a href="#">实验室预约</a>
             </div>
           </div>
         </div>
@@ -436,45 +261,20 @@
     <!-- ===== Footer ===== -->
     <footer class="site-footer">
       <div class="wrap footer-top">
-        <div class="footer-columns">
-          <div class="footer-column">
-            <h3>学院概况</h3>
-            <a href="pages/about/index.html">学院简介</a>
-            <a href="#">学院领导</a>
-            <a href="#">学术机构</a>
-            <a href="#">组织机构</a>
-          </div>
-          <div class="footer-column">
-            <h3>新闻与公告</h3>
-            <a href="pages/news/index.html">学院新闻</a>
-            <a href="pages/notices/index.html">通知公告</a>
-            <a href="pages/research/index.html">教学科研</a>
-            <a href="pages/campus/index.html">学院风采</a>
-          </div>
-          <div class="footer-column">
-            <h3>教育教学</h3>
-            <a href="pages/education/index.html">本科生</a>
-            <a href="pages/education/index.html">研究生</a>
-            <a href="pages/admissions/index.html">招生就业</a>
-            <a href="pages/party/index.html">党团建设</a>
-          </div>
-          <div class="footer-column">
-            <h3>友情链接</h3>
-            <a href="https://www.lsnu.edu.cn/">乐山师范学院</a>
-            <a href="index.html">学校主页</a>
-            <a href="#">站内搜索</a>
-            <a href="#">English</a>
-          </div>
+        <div class="footer-columns" data-footer-nav>
+          <!-- 页脚链接由 assets/js/data.js 的 nav 自动映射，保持和顶部一二级目录一致。 -->
         </div>
         <div class="footer-divider"></div>
         <div class="footer-bottom">
           <div class="footer-brand">
-            <div class="footer-logo" aria-hidden="true">
-              <span>二维码</span>
+            <div class="footer-qr-group">
+              <div class="footer-qr" aria-hidden="true">
+                <span>二维码</span>
+              </div>
+              <span class="footer-qr-label">官方微信</span>
             </div>
-            <div class="footer-brand-copy">
-              <strong>乐山师范学院新闻与传媒学院</strong>
-              <span>Leshan Normal University</span>
+            <div class="footer-logo-block" aria-label="页脚 logo 预留位">
+              <img class="footer-logo" src="assets/icons/logo.png" alt="学院 logo">
             </div>
           </div>
           <div class="footer-contact">
@@ -482,7 +282,6 @@
             <p>地址：四川省乐山市市中区滨河路778号旷怡楼2楼</p>
             <p>电话：待补充</p>
             <p>邮箱：待补充</p>
-            <p>版权所有 &copy; 乐山师范学院新闻与传媒学院</p>
           </div>
         </div>
       </div>

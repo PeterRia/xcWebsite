@@ -18,6 +18,8 @@ const App = (function () {
     renderTopLinks();
     renderDesktopNav();
     renderMobileNav();
+    renderFooterNav();
+    syncHeaderHeight();
     initNavDropdowns();
     initDrawer();
     initSearchPopover();
@@ -39,7 +41,7 @@ const App = (function () {
 
   /* ===== Render Top Links ===== */
   function renderTopLinks() {
-    // 顶部链接同时服务桌面端和移动抽屉；站内搜索被放到最后，保持视觉和交互一致。
+    // 顶部链接同时服务桌面端和移动抽屉；搜索入口现在只保留独立图标。
     var desktop = document.querySelector("[data-topbar-links-list]");
     var mobile = document.querySelector("[data-mobile-utility-links]");
     var links = siteData.topLinks || [];
@@ -49,19 +51,10 @@ const App = (function () {
 
     desktop.textContent = "";
     mobile.textContent = "";
-    var searchItem = null;
     links.forEach(function (item) {
-      if (item && item.name === "站内搜索") {
-        searchItem = item;
-        return;
-      }
       desktop.appendChild(createLink(item));
       mobile.appendChild(createLink(item));
     });
-    if (searchItem) {
-      desktop.appendChild(createLink(searchItem));
-      mobile.appendChild(createLink(searchItem));
-    }
   }
 
   /* ===== Render Desktop Navigation ===== */
@@ -80,9 +73,6 @@ const App = (function () {
       li.className = "nav-item" + (hasChildren ? " has-menu" : "");
 
       var link = createLink(item);
-      if (index === 0) {
-        link.setAttribute("aria-current", "page");
-      }
       if (hasChildren) {
         link.setAttribute("aria-expanded", "false");
       }
@@ -151,6 +141,72 @@ const App = (function () {
     details.appendChild(summary);
     details.appendChild(submenu);
     return details;
+  }
+
+
+  /* ===== Render Footer Navigation ===== */
+  function renderFooterNav() {
+    // 页脚链接不再单独维护，直接映射 siteData.nav 的一级、二级目录，避免底部和顶部导航不一致。
+    var footer = document.querySelector("[data-footer-nav]");
+    var navItems = siteData.nav || [];
+    if (!footer || !navItems.length) {
+      return;
+    }
+
+    footer.textContent = "";
+    var order = siteData.footerNavOrder || [];
+    var orderedItems = navItems.slice();
+    if (order.length) {
+      orderedItems.sort(function (a, b) {
+        var ai = order.indexOf(a.name);
+        var bi = order.indexOf(b.name);
+        ai = ai === -1 ? Number.MAX_SAFE_INTEGER : ai;
+        bi = bi === -1 ? Number.MAX_SAFE_INTEGER : bi;
+        return ai - bi;
+      });
+    }
+
+    orderedItems.forEach(function (item) {
+      var column = document.createElement("div");
+      var title = document.createElement("h3");
+      var titleLink = createLink(item);
+      var children = Array.isArray(item.children) ? item.children : [];
+
+      column.className = "footer-column";
+      titleLink.className = "footer-column-title";
+      title.appendChild(titleLink);
+      column.appendChild(title);
+
+      children.forEach(function (child) {
+        if (typeof child === "string") {
+          column.appendChild(createLink({ name: child, href: "#" }));
+          return;
+        }
+        column.appendChild(createLink(child || {}));
+      });
+
+      footer.appendChild(column);
+    });
+  }
+
+
+  /* ===== Sync Header Height ===== */
+  function syncHeaderHeight() {
+    // 轮播高度要扣掉真实页头高度；用 JS 同步一次，可以适配电脑、Mac、手机以及后续页头内容变化。
+    var header = document.querySelector(".site-header");
+    if (!header) {
+      return;
+    }
+
+    function update() {
+      var height = Math.ceil(header.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--site-header-height", height + "px");
+    }
+
+    update();
+    var onResize = window.Utils && Utils.debounce ? Utils.debounce(update, 120) : update;
+    window.addEventListener("resize", onResize);
+    window.addEventListener("load", update);
   }
 
   /* ===== Navigation Dropdowns ===== */
