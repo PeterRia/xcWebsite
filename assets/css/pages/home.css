@@ -188,6 +188,50 @@
   padding: var(--section-gap) 0;
 }
 
+.section-with-bg {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.section-with-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  opacity: var(--section-bg-opacity);
+  pointer-events: none;
+}
+
+.section-with-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+}
+
+.section-bg-news::before {
+  background-image: url("../../images/home/backgrounds/bg-news.png");
+}
+
+.section-bg-notice::before {
+  background-image: url("../../images/home/backgrounds/bg-notice.png");
+}
+
+.section-bg-campus::before {
+  background-image: url("../../images/home/backgrounds/bg-campus.png");
+}
+
+.section-with-bg > .wrap {
+  position: relative;
+  z-index: 1;
+}
+
 .news-section {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
@@ -242,7 +286,7 @@
 }
 
 .news-image {
-  aspect-ratio: 760 / 430;
+  aspect-ratio: var(--ratio-section-image);
   overflow: hidden;
 }
 
@@ -510,7 +554,7 @@
 .teaching-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px 36px;
+  gap: var(--section-image-gap);
 }
 
 .teaching-card {
@@ -639,20 +683,21 @@
 
 .campus-grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 28px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--section-image-gap);
+  align-items: start;
 }
 
 .campus-side {
   display: grid;
   grid-template-rows: auto auto;
-  gap: 22px;
+  gap: var(--section-image-gap);
 }
 
 .campus-mini-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  gap: var(--section-image-gap);
 }
 
 .campus-card {
@@ -860,6 +905,14 @@
 }
 
 @media (max-width: 767px) {
+  .section-with-bg::before {
+    opacity: var(--section-bg-opacity-mobile);
+  }
+
+  .section-with-bg::after {
+    background: rgba(255, 255, 255, 0.94);
+  }
+
   .hero-slider {
     width: 100%;
     height: min(56.25vw, calc(100svh - var(--site-header-height, 60px)));

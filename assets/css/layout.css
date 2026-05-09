@@ -415,6 +415,13 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
+.footer-copyright {
+  margin-top: 10px;
+  font-size: var(--font-size-footer-link);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.86);
+}
+
 .back-to-top {
   position: fixed;
   right: 22px;

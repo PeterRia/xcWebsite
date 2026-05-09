@@ -17,7 +17,7 @@
   --color-surface: #ffffff;
   --color-page: #f5f3f0;
   --color-card: #faf9f7;
-  --color-shadow: 0 8px 18px rgba(67, 39, 39, 0.1);
+  --color-shadow: 0 8px 18px rgba(67, 39, 39, 0.10);
   --color-hover-blue: #1f5f9f;
   --color-hover-blue-dark: #174a7c;
 
@@ -52,6 +52,8 @@
   --hero-min-height: 220px;
   --hero-max-height: 920px;
   --hero-image-fit: cover;
+  --section-bg-opacity: 0.8;
+  --section-bg-opacity-mobile: 0.7;
 
   /* ===== Font system ===== */
   --font-sans: Arial, 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', SimSun, sans-serif;
@@ -93,18 +95,25 @@
   --font-size-date-list: clamp(14px, 1.25vw, 18px);
   --font-size-date-year-small: clamp(10px, 0.85vw, 12px);
 
-  /* 首页图片比例：只锁定容器比例，不改变栏目布局。
-   * 教学科研保持左图右文卡片：建议 1200x900（4:3）。
-   * 新传风采保持拼贴布局：大图 1300x1000，横图 1950x1000，小图 1180x1000。
+  /* 首页栏目图片比例：统一用 16:9，便于长期管理。
+   * 教学科研、新传风采全部使用同一套素材规范：
+   * 推荐原始母版 1600x900；网页轻量版 960x540；最低不低于 1200x675。
+   * 页面中的“大图/横图/小图”只是版式大小不同，不再要求不同裁切比例。
    */
-  --ratio-teaching-image: 4 / 3;
-  --ratio-campus-large: 13 / 10;
-  --ratio-campus-wide: 39 / 20;
-  --ratio-campus-small: 59 / 50;
-  --size-teaching-image: 1200px 900px;
-  --size-campus-large: 1300px 1000px;
-  --size-campus-wide: 1950px 1000px;
-  --size-campus-small: 1180px 1000px;
+  --ratio-section-image: 16 / 9;
+  --section-image-master-width: 1600px;
+  --section-image-master-height: 900px;
+  --section-image-web-width: 960px;
+  --section-image-web-height: 540px;
+  --section-image-gap: clamp(18px, 1.9vw, 28px);
+  --ratio-teaching-image: var(--ratio-section-image);
+  --ratio-campus-large: var(--ratio-section-image);
+  --ratio-campus-wide: var(--ratio-section-image);
+  --ratio-campus-small: var(--ratio-section-image);
+  --size-teaching-image: 1600px 900px;
+  --size-campus-large: 1600px 900px;
+  --size-campus-wide: 1600px 900px;
+  --size-campus-small: 1600px 900px;
 
   /* Hero caption: 轮播标题随屏幕缩放，移动端不会过大。 */
   --font-size-hero-eyebrow: clamp(10px, 0.8vw, 13px);
