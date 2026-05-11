@@ -5,7 +5,7 @@
  */
 (function () {
   var siteData = window.siteData || {};
-  var NEWS_LIST_VISIBLE_COUNT = 8;
+  var NEWS_LIST_VISIBLE_COUNT = 7;
 
   /* ===== Date helpers ===== */
   function parseDate(dateString) {
@@ -330,8 +330,8 @@
 
     renderFeaturedNews(feature, news[0]);
     list.textContent = '';
-    news.slice(1, NEWS_LIST_VISIBLE_COUNT + 1).forEach(function (item, offset) {
-      list.appendChild(createNewsListItem(item, offset + 1));
+    news.slice(0, NEWS_LIST_VISIBLE_COUNT).forEach(function (item, offset) {
+      list.appendChild(createNewsListItem(item, offset));
     });
   }
 
@@ -418,6 +418,8 @@
       item.addEventListener('focusin', activate);
       item.addEventListener('click', activate);
     });
+
+    setActive(listItems[0]);
   }
 
   /* ===== Notice rendering and active state ===== */

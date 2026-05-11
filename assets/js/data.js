@@ -146,7 +146,7 @@
       { title: "新闻与传媒学院2026年实验室开放项目公示", date: "2026-03-24", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1820.htm", href: "#" },
       { title: "关于2026届学生毕业论文形式规范检测的通知", date: "2026-03-16", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1803.htm", href: "#" },
       { title: "乐山师范学院党委第五轮巡察公告", date: "2026-01-12", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1663.htm", href: "#" },
-      { title: "【琢玉论坛】学术论文写作规范与期刊选稿要求", date: "2026-01-05", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1623.htm", href: "#" }
+      { title: "【琢玉论坛】学术论文写作规范与期刊选稿要求", date: "2026-01-05", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1623.htm", href: "#", pinned: true }
     ],
     /* 教学科研数据：对应首页深红背景区域的四张卡片，数量锁定为 4。 */
     research: [

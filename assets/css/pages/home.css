@@ -221,6 +221,8 @@
 
 .section-bg-notice::before {
   background-image: url("../../images/home/backgrounds/bg-notice.png");
+  /* 通知公告背景的主体更靠上时，用 center top 锁住顶部；cover 裁切时优先裁掉下方。 */
+  background-position: center top;
 }
 
 .section-bg-campus::before {
@@ -251,7 +253,7 @@
   display: grid;
   grid-template-columns: 1.1fr 0.95fr;
   gap: 22px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .news-feature {
@@ -387,7 +389,9 @@
 .news-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 6px;
+  height: 100%;
 }
 
 .news-list-item {
@@ -400,7 +404,7 @@
   grid-template-areas: 'diamond title date';
   gap: 8px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 7px 10px;
   border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.12);
   border-radius: 2px;
   font-size: var(--font-size-news-title);
@@ -451,12 +455,12 @@
   grid-template-columns: var(--date-card-width) minmax(0, 1fr);
   grid-template-areas: 'date title';
   align-items: stretch;
-  min-height: clamp(88px, 7.8vw, 104px);
+  min-height: clamp(74px, 5.8vw, 86px);
   transform: translateX(4px);
   background: var(--color-primary);
   color: #fff;
   box-shadow: 0 8px 18px rgba(var(--color-primary-rgb), 0.18);
-  padding: 12px 14px;
+  padding: 9px 12px;
 }
 
 .news-list-item.is-active .diamond {
@@ -476,7 +480,7 @@
 .news-list-item.is-active time {
   align-self: stretch;
   justify-self: stretch;
-  padding: 0 14px 0 0;
+  padding: 0 10px 0 0;
   border-left: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
@@ -731,7 +735,7 @@
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: clamp(14px, 1.6vw, 22px);
-  align-items: start;
+  align-items: center;
 }
 
 .campus-side {
@@ -829,6 +833,24 @@
 
 .quicklinks-panel {
   position: relative;
+  /* 快速链接统一参数区：只改这里就能同步控制外框宽度、卡片宽度、图标、间距和移动端适配。 */
+  /* 文字字号：下面的 8em 会跟随这个字号计算，所以字号越大，统一卡片也会越宽。 */
+  --quicklink-font-size: clamp(12px, 0.9vw, 15px);
+  /* 文字区宽度：8em 约等于 8 个当前字号的字符宽度，用来保证四个链接方块统一宽度。 */
+  --quicklink-text-width: 8em;
+  /* 图标外框宽高：单个链接总宽度会把这个值算进去。 */
+  --quicklink-icon-size: 36px;
+  /* 图标和文字之间的横向距离。 */
+  --quicklink-gap: 8px;
+  /* 单个链接方块的左右内边距；上下内边距仍在 .quicklinks-list a 里单独设置。 */
+  --quicklink-x-padding: 14px;
+  /* 单个链接方块最终宽度 = 图标 + 间距 + 8 字文字区 + 左右内边距。 */
+  --quicklink-card-width: calc(var(--quicklink-icon-size) + var(--quicklink-gap) + var(--quicklink-text-width) + (var(--quicklink-x-padding) * 2));
+  /* fit-content 只收窄外层面板，不让面板继续铺满正文宽度；每个链接方块仍使用统一宽度。 */
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
   padding: clamp(14px, 1.6vw, 20px);
   overflow: hidden;
   background:
@@ -852,7 +874,7 @@
 .quicklinks-head {
   position: relative;
   z-index: 1;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .quicklinks-head h2 {
@@ -866,24 +888,30 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, var(--quicklink-card-width));
   gap: 10px;
+  justify-content: center;
+  justify-items: center;
 }
 
 .quicklinks-list a {
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: var(--quicklink-icon-size) var(--quicklink-text-width);
+  gap: var(--quicklink-gap);
   align-items: center;
+  justify-content: center;
+  width: var(--quicklink-card-width);
+  max-width: 100%;
   min-height: 66px;
-  padding: 12px 14px;
+  padding: 12px var(--quicklink-x-padding);
   border: 1px solid rgba(var(--color-primary-rgb), 0.12);
   border-radius: 10px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76)),
     radial-gradient(circle at 100% 0, rgba(var(--color-primary-rgb), 0.11), transparent 40%);
   color: #2d2926;
+  font-size: var(--quicklink-font-size);
   box-shadow: 0 8px 20px rgba(66, 36, 36, 0.08);
   transition: background var(--motion-fast), color var(--motion-fast), transform var(--motion-fast), box-shadow var(--motion-fast), border-color var(--motion-fast);
 }
@@ -898,8 +926,8 @@
 }
 
 .quicklink-icon {
-  width: 36px;
-  height: 36px;
+  width: var(--quicklink-icon-size);
+  height: var(--quicklink-icon-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -929,11 +957,12 @@
 
 .quicklink-text {
   min-width: 0;
+  width: var(--quicklink-text-width);
 }
 
 .quicklink-name {
   display: block;
-  font-size: clamp(12px, 0.9vw, 15px);
+  font-size: 1em;
   line-height: 1.2;
   font-weight: 800;
   white-space: nowrap;
@@ -948,8 +977,12 @@
     grid-template-columns: 1fr;
   }
 
+  .campus-grid {
+    align-items: stretch;
+  }
+
   .quicklinks-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, var(--quicklink-card-width));
   }
 }
 
@@ -1000,6 +1033,12 @@
     gap: 12px;
   }
 
+  .news-list {
+    justify-content: flex-start;
+    gap: 6px;
+    height: auto;
+  }
+
   .news-feature-body {
     grid-template-columns: var(--date-card-width) minmax(0, 1fr);
     gap: 10px;
@@ -1023,8 +1062,8 @@
   .news-list-item.is-active a {
     grid-template-columns: var(--date-card-width) minmax(0, 1fr);
     gap: 8px;
-    min-height: 84px;
-    padding: 10px 8px;
+    min-height: 72px;
+    padding: 8px 8px;
     transform: translateX(3px);
   }
 
@@ -1080,8 +1119,8 @@
   }
 
   .teaching-copy {
-    padding: 14px 14px 16px;
-    gap: 10px;
+    padding: 12px 14px 13px;
+    gap: 6px;
   }
 
   .tag {
@@ -1090,11 +1129,14 @@
   }
 
   .teaching-copy h3 {
+    min-height: 0;
+    margin: 0;
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 1.42;
   }
 
   .teaching-copy time {
+    margin-top: 0;
     font-size: 12px;
   }
 
@@ -1127,27 +1169,36 @@
   }
 
   .quicklinks-panel {
+    --quicklink-font-size: clamp(11px, 3.1vw, 13px);
+    --quicklink-icon-size: 28px;
+    --quicklink-gap: 6px;
+    --quicklink-x-padding: 8px;
+    width: 100%;
     padding: 12px 10px;
   }
 
   .quicklinks-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, var(--quicklink-card-width)));
+    gap: 8px;
+    justify-content: center;
+    justify-items: center;
   }
 
   .quicklinks-list a {
-    gap: 6px;
+    gap: var(--quicklink-gap);
+    justify-self: center;
+    justify-content: center;
     min-height: 56px;
-    padding: 8px 10px;
+    padding: 8px var(--quicklink-x-padding);
   }
 
   .quicklink-icon {
-    width: 28px;
-    height: 28px;
+    width: var(--quicklink-icon-size);
+    height: var(--quicklink-icon-size);
   }
 
   .quicklink-name {
-    font-size: clamp(9px, 2.7vw, 11px);
+    font-size: 1em;
     line-height: 1.05;
     white-space: nowrap;
     overflow: hidden;
