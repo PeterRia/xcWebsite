@@ -137,9 +137,11 @@
       { title: "学院召开新媒体课程建设研讨会，推进内容生产协同", summary: "围绕课程体系、实践平台和内容协同机制展开专题研讨，持续完善学院人才培养路径。", date: "2026-03-29", image: "assets/images/home/hero/hero-06.jpg", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1045/1888.htm", href: "#" },
       { title: "学院师生走进融媒体平台开展实践教学观摩", summary: "师生团队赴本地融媒体平台开展现场观摩与岗位认知实践，强化课堂与行业现场联动。", date: "2026-03-18", image: "assets/images/home/hero/hero-07.jpg", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1045/1868.htm", href: "#" }
     ],
-    /* 通知数据：当前 HTML 静态写入，保留数据源便于后续列表自动渲染或接接口。 */
+    /* 通知置顶总开关：true 时读取 notices 里的 pinned；false 时全部按原始顺序展示。 */
+    noticePinEnabled: true,
+    /* 通知数据：pinned: true 表示置顶；配合 noticePinEnabled 可一键开启或关闭所有置顶效果。 */
     notices: [
-      { title: "新传学院2026年度\"学生资助宣传大使\"拟推荐名单公示", date: "2026-04-22", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1930.htm", href: "#" },
+      { title: "新传学院2026年度\"学生资助宣传大使\"拟推荐名单公示", date: "2026-04-22", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1930.htm", href: "#", pinned: true },
       { title: "征稿通知丨2026年跨文化传播研究工作坊", date: "2026-04-21", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1922.htm", href: "#" },
       { title: "新闻与传媒学院2026年实验室开放项目公示", date: "2026-03-24", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1820.htm", href: "#" },
       { title: "关于2026届学生毕业论文形式规范检测的通知", date: "2026-03-16", sourceUrl: "https://xwcm.lsnu.edu.cn/info/1055/1803.htm", href: "#" },
@@ -157,8 +159,8 @@
     quickLinks: [
       { name: "数字校园门户", icon: "portal", href: "#" },
       { name: "教务管理系统", icon: "academic", href: "#" },
-      { name: "学术检索", icon: "search", href: "#" },
-      { name: "实验室预约", icon: "lab", href: "#" }
+      { name: "实验室预约", icon: "lab", href: "#" },
+      { name: "学术检索", icon: "search", href: "#" }
     ],
     /* 页脚信息：当前 HTML 静态写入；这里保留统一数据，后续可继续抽成 JS 渲染。 */
     footer: {

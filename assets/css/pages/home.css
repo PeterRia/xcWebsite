@@ -232,7 +232,16 @@
   z-index: 1;
 }
 
+.news-section .section-head,
+.notice-section .section-head,
+.teaching-section .section-head,
+.campus-section .section-head {
+  margin-bottom: clamp(14px, 1.55vw, 22px);
+}
+
 .news-section {
+  padding-top: clamp(30px, 3vw, 42px);
+  padding-bottom: clamp(28px, 2.8vw, 40px);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)),
     linear-gradient(135deg, rgba(94, 80, 70, 0.04) 0%, rgba(94, 80, 70, 0.01) 100%);
@@ -241,7 +250,7 @@
 .news-layout {
   display: grid;
   grid-template-columns: 1.1fr 0.95fr;
-  gap: 28px;
+  gap: 22px;
   align-items: start;
 }
 
@@ -299,9 +308,9 @@
 .news-feature-body {
   display: grid;
   grid-template-columns: var(--date-card-width) minmax(0, 1fr);
-  gap: clamp(12px, 1.5vw, 18px);
+  gap: clamp(10px, 1.2vw, 16px);
   align-items: stretch;
-  padding: clamp(14px, 1.4vw, 18px) clamp(14px, 1.55vw, 18px) clamp(18px, 2vw, 24px);
+  padding: clamp(12px, 1.2vw, 16px) clamp(12px, 1.35vw, 16px) clamp(14px, 1.7vw, 20px);
 }
 
 .date-badge,
@@ -369,7 +378,7 @@
 }
 
 .news-copy p {
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: var(--font-size-news-summary);
   line-height: var(--line-news-summary);
   color: var(--color-muted);
@@ -378,7 +387,7 @@
 .news-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .news-list-item {
@@ -389,9 +398,9 @@
   display: grid;
   grid-template-columns: 14px minmax(0, 1fr) var(--date-card-width-small);
   grid-template-areas: 'diamond title date';
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.12);
   border-radius: 2px;
   font-size: var(--font-size-news-title);
@@ -442,12 +451,12 @@
   grid-template-columns: var(--date-card-width) minmax(0, 1fr);
   grid-template-areas: 'date title';
   align-items: stretch;
-  min-height: clamp(96px, 8.8vw, 116px);
-  transform: translateX(6px);
+  min-height: clamp(88px, 7.8vw, 104px);
+  transform: translateX(4px);
   background: var(--color-primary);
   color: #fff;
   box-shadow: 0 8px 18px rgba(var(--color-primary-rgb), 0.18);
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 
 .news-list-item.is-active .diamond {
@@ -483,6 +492,8 @@
 }
 
 .notice-section {
+  padding-top: clamp(30px, 3vw, 42px);
+  padding-bottom: clamp(30px, 3vw, 42px);
   background:
     linear-gradient(180deg, rgba(247, 245, 242, 0.95), rgba(247, 245, 242, 0.95)),
     linear-gradient(135deg, rgba(126, 95, 80, 0.08) 0%, rgba(126, 95, 80, 0) 65%);
@@ -491,16 +502,16 @@
 .notice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px 24px;
+  gap: 16px 18px;
 }
 
 .notice-card > a {
   display: grid;
   grid-template-columns: var(--date-card-width) minmax(0, 1fr);
-  gap: clamp(12px, 1.5vw, 18px);
+  gap: clamp(10px, 1.2vw, 16px);
   align-items: center;
-  min-height: clamp(92px, 8vw, 106px);
-  padding: clamp(16px, 1.6vw, 22px);
+  min-height: clamp(82px, 7vw, 96px);
+  padding: clamp(12px, 1.35vw, 18px);
   border: 1px solid rgba(var(--color-primary-rgb), 0.08);
   background: #fff;
   transition: transform var(--motion-normal), background var(--motion-normal), color var(--motion-normal), border-color var(--motion-normal), box-shadow var(--motion-normal), padding var(--motion-normal);
@@ -514,14 +525,15 @@
 }
 
 .notice-card.is-active .notice-date,
+.notice-card.is-active .notice-pin,
 .notice-card.is-active .notice-title {
   color: #fff;
 }
 
 .notice-date {
   border-right: 1px solid rgba(var(--color-primary-rgb), 0.14);
-  padding-right: clamp(10px, 1.2vw, 16px);
-  min-height: clamp(68px, 6.4vw, 78px);
+  padding-right: clamp(8px, 1vw, 14px);
+  min-height: clamp(58px, 5.7vw, 70px);
   color: var(--color-primary);
   transition: color var(--motion-normal), border-color var(--motion-normal), transform var(--motion-normal);
 }
@@ -531,7 +543,37 @@
   transform: scale(1.02);
 }
 
+.notice-card.is-pinned > a {
+  border-color: rgba(var(--color-primary-rgb), 0.18);
+}
+
+.notice-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.notice-pin {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.28);
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.06);
+  transition: color var(--motion-normal), border-color var(--motion-normal), background var(--motion-normal);
+}
+
+.notice-card.is-active .notice-pin {
+  border-color: rgba(255, 255, 255, 0.52);
+  background: rgba(255, 255, 255, 0.12);
+}
+
 .notice-title {
+  min-width: 0;
   font-size: var(--font-size-notice-title);
   line-height: var(--line-notice-title);
   font-weight: 700;
@@ -545,6 +587,8 @@
 }
 
 .teaching-section {
+  padding-top: clamp(32px, 3.2vw, 44px);
+  padding-bottom: clamp(32px, 3.2vw, 44px);
   background:
     linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.95), rgba(var(--color-primary-rgb), 0.95)),
     radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.06) 0 18%, transparent 19% 100%);
@@ -554,7 +598,7 @@
 .teaching-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--section-image-gap);
+  gap: clamp(14px, 1.6vw, 22px);
 }
 
 .teaching-card {
@@ -626,10 +670,10 @@
 .teaching-copy {
   position: relative;
   min-height: 100%;
-  padding: clamp(22px, 2.25vw, 34px) clamp(18px, 1.85vw, 28px);
+  padding: clamp(18px, 1.8vw, 28px) clamp(16px, 1.55vw, 22px);
   display: flex;
   flex-direction: column;
-  gap: clamp(12px, 1.2vw, 18px);
+  gap: clamp(10px, 1vw, 14px);
   transition: background var(--motion-normal), color var(--motion-normal);
 }
 
@@ -676,6 +720,8 @@
 }
 
 .campus-section {
+  padding-top: clamp(32px, 3.2vw, 44px);
+  padding-bottom: clamp(32px, 3.2vw, 44px);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
     linear-gradient(135deg, rgba(100, 85, 76, 0.06) 0%, rgba(100, 85, 76, 0.02) 100%);
@@ -684,20 +730,20 @@
 .campus-grid {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: var(--section-image-gap);
+  gap: clamp(14px, 1.6vw, 22px);
   align-items: start;
 }
 
 .campus-side {
   display: grid;
   grid-template-rows: auto auto;
-  gap: var(--section-image-gap);
+  gap: clamp(14px, 1.6vw, 22px);
 }
 
 .campus-mini-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--section-image-gap);
+  gap: clamp(14px, 1.6vw, 22px);
 }
 
 .campus-card {
@@ -776,14 +822,14 @@
 }
 
 .quicklinks-section {
-  padding-top: 28px;
-  padding-bottom: 64px;
+  padding-top: 18px;
+  padding-bottom: 40px;
   background: #f7f5f2;
 }
 
 .quicklinks-panel {
   position: relative;
-  padding: clamp(20px, 2.5vw, 32px);
+  padding: clamp(16px, 2vw, 24px);
   overflow: hidden;
   background:
     radial-gradient(circle at 8% 18%, rgba(var(--color-primary-rgb), 0.10) 0 12%, transparent 13% 100%),
@@ -806,7 +852,7 @@
 .quicklinks-head {
   position: relative;
   z-index: 1;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .quicklinks-head h2 {
@@ -821,19 +867,19 @@
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .quicklinks-list a {
   position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-  min-height: 84px;
-  padding: 18px;
+  min-height: 74px;
+  padding: 14px 16px;
   border: 1px solid rgba(var(--color-primary-rgb), 0.12);
-  border-radius: 14px;
+  border-radius: 12px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76)),
     radial-gradient(circle at 100% 0, rgba(var(--color-primary-rgb), 0.11), transparent 40%);
@@ -852,12 +898,12 @@
 }
 
 .quicklink-icon {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
+  border-radius: 12px;
   color: var(--color-primary);
   background:
     linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12), rgba(31, 95, 159, 0.08));
@@ -932,14 +978,29 @@
     padding: 38px 0;
   }
 
+  .news-section,
+  .notice-section,
+  .teaching-section,
+  .campus-section {
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+
+  .news-section .section-head,
+  .notice-section .section-head,
+  .teaching-section .section-head,
+  .campus-section .section-head {
+    margin-bottom: 14px;
+  }
+
   .news-layout {
-    gap: 18px;
+    gap: 12px;
   }
 
   .news-feature-body {
     grid-template-columns: var(--date-card-width) minmax(0, 1fr);
-    gap: 12px;
-    padding: 14px 14px 18px;
+    gap: 10px;
+    padding: 12px 12px 14px;
   }
 
   .date-badge {
@@ -952,15 +1013,15 @@
 
   .news-list-item a {
     grid-template-columns: 10px minmax(0, 1fr) var(--date-card-width-small);
-    gap: 8px;
-    padding: 9px 8px;
+    gap: 6px;
+    padding: 7px 8px;
   }
 
   .news-list-item.is-active a {
     grid-template-columns: var(--date-card-width) minmax(0, 1fr);
-    gap: 10px;
-    min-height: 96px;
-    padding: 12px 10px;
+    gap: 8px;
+    min-height: 84px;
+    padding: 10px 8px;
     transform: translateX(3px);
   }
 
@@ -970,19 +1031,19 @@
 
   .notice-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 10px;
   }
 
   .notice-card > a {
     grid-template-columns: var(--date-card-width) minmax(0, 1fr);
-    gap: 12px;
-    min-height: 88px;
-    padding: 14px;
+    gap: 10px;
+    min-height: 76px;
+    padding: 12px;
   }
 
   .notice-date {
-    padding-right: 10px;
-    min-height: 64px;
+    padding-right: 8px;
+    min-height: 56px;
   }
 
   .notice-card.is-active > a {
@@ -994,8 +1055,17 @@
     line-height: 1.45;
   }
 
+  .notice-title-wrap {
+    gap: 6px;
+  }
+
+  .notice-pin {
+    padding: 2px 5px;
+    font-size: 11px;
+  }
+
   .teaching-grid {
-    gap: 18px;
+    gap: 14px;
   }
 
   .teaching-card > a {
@@ -1007,8 +1077,8 @@
   }
 
   .teaching-copy {
-    padding: 18px 16px 20px;
-    gap: 12px;
+    padding: 14px 14px 16px;
+    gap: 10px;
   }
 
   .tag {
@@ -1027,11 +1097,11 @@
 
   .campus-grid,
   .campus-mini-grid {
-    gap: 16px;
+    gap: 12px;
   }
 
   .campus-side {
-    gap: 16px;
+    gap: 12px;
   }
 
   .campus-card-large a,
@@ -1049,26 +1119,32 @@
   }
 
   .quicklinks-section {
-    padding-top: 8px;
-    padding-bottom: 42px;
+    padding-top: 4px;
+    padding-bottom: 26px;
   }
 
   .quicklinks-panel {
-    padding: 18px 14px;
+    padding: 14px 12px;
   }
 
   .quicklinks-list {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .quicklinks-list a {
-    min-height: 74px;
-    padding: 14px;
+    gap: 8px;
+    min-height: 62px;
+    padding: 10px;
   }
 
   .quicklink-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .quicklink-name {
+    font-size: 13px;
+    line-height: 1.25;
   }
 }

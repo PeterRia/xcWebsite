@@ -5,6 +5,7 @@
  */
 (function () {
   var siteData = window.siteData || {};
+  var NEWS_LIST_VISIBLE_COUNT = 8;
 
   /* ===== Date helpers ===== */
   function parseDate(dateString) {
@@ -329,7 +330,7 @@
 
     renderFeaturedNews(feature, news[0]);
     list.textContent = '';
-    news.slice(1).forEach(function (item, offset) {
+    news.slice(1, NEWS_LIST_VISIBLE_COUNT + 1).forEach(function (item, offset) {
       list.appendChild(createNewsListItem(item, offset + 1));
     });
   }
@@ -427,18 +428,42 @@
       return;
     }
     grid.textContent = '';
-    notices.forEach(function (item) {
+    getRenderedNotices(notices).forEach(function (item) {
       grid.appendChild(createNoticeCard(item));
+    });
+  }
+
+  function getRenderedNotices(notices) {
+    var pinEnabled = siteData.noticePinEnabled !== false;
+    return notices.map(function (item, index) {
+      var notice = Object.assign({}, item);
+      notice.pinVisible = pinEnabled && item && item.pinned === true;
+      notice.originalIndex = index;
+      return notice;
+    }).sort(function (a, b) {
+      if (a.pinVisible !== b.pinVisible) {
+        return a.pinVisible ? -1 : 1;
+      }
+      return a.originalIndex - b.originalIndex;
     });
   }
 
   function createNoticeCard(item) {
     var article = document.createElement('article');
     var link = document.createElement('a');
+    var titleWrap = document.createElement('span');
+    var title = createTextElement('span', 'notice-title', item.title || '');
+
     article.className = 'notice-card card';
+    article.classList.toggle('is-pinned', Boolean(item.pinVisible));
     link.href = item.href || '#';
+    titleWrap.className = 'notice-title-wrap';
+    if (item.pinVisible) {
+      titleWrap.appendChild(createTextElement('span', 'notice-pin', '置顶'));
+    }
+    titleWrap.appendChild(title);
     link.appendChild(createDateBlock('span', item.date, 'notice-date'));
-    link.appendChild(createTextElement('span', 'notice-title', item.title || ''));
+    link.appendChild(titleWrap);
     article.appendChild(link);
     return article;
   }
