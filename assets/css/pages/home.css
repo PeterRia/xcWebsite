@@ -822,14 +822,14 @@
 }
 
 .quicklinks-section {
-  padding-top: 18px;
-  padding-bottom: 40px;
+  padding-top: 12px;
+  padding-bottom: 32px;
   background: #f7f5f2;
 }
 
 .quicklinks-panel {
   position: relative;
-  padding: clamp(16px, 2vw, 24px);
+  padding: clamp(14px, 1.6vw, 20px);
   overflow: hidden;
   background:
     radial-gradient(circle at 8% 18%, rgba(var(--color-primary-rgb), 0.10) 0 12%, transparent 13% 100%),
@@ -852,11 +852,11 @@
 .quicklinks-head {
   position: relative;
   z-index: 1;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .quicklinks-head h2 {
-  font-size: clamp(22px, 2vw, 28px);
+  font-size: clamp(20px, 1.8vw, 26px);
   line-height: 1.2;
   font-weight: 800;
   color: #2e2d2b;
@@ -867,19 +867,19 @@
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .quicklinks-list a {
   position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  min-height: 74px;
-  padding: 14px 16px;
+  min-height: 66px;
+  padding: 12px 14px;
   border: 1px solid rgba(var(--color-primary-rgb), 0.12);
-  border-radius: 12px;
+  border-radius: 10px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76)),
     radial-gradient(circle at 100% 0, rgba(var(--color-primary-rgb), 0.11), transparent 40%);
@@ -898,12 +898,12 @@
 }
 
 .quicklink-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--color-primary);
   background:
     linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12), rgba(31, 95, 159, 0.08));
@@ -918,8 +918,8 @@
 }
 
 .quicklink-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   stroke: currentColor;
   stroke-width: 1.9;
   fill: none;
@@ -933,9 +933,12 @@
 
 .quicklink-name {
   display: block;
-  font-size: clamp(14px, 1.08vw, 17px);
-  line-height: 1.35;
+  font-size: clamp(12px, 0.9vw, 15px);
+  line-height: 1.2;
   font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 @media (max-width: 1024px) {
@@ -1119,32 +1122,35 @@
   }
 
   .quicklinks-section {
-    padding-top: 4px;
-    padding-bottom: 26px;
+    padding-top: 2px;
+    padding-bottom: 20px;
   }
 
   .quicklinks-panel {
-    padding: 14px 12px;
+    padding: 12px 10px;
   }
 
   .quicklinks-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
   }
 
   .quicklinks-list a {
-    gap: 8px;
-    min-height: 62px;
-    padding: 10px;
+    gap: 6px;
+    min-height: 56px;
+    padding: 8px 10px;
   }
 
   .quicklink-icon {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
 
   .quicklink-name {
-    font-size: 13px;
-    line-height: 1.25;
+    font-size: clamp(9px, 2.7vw, 11px);
+    line-height: 1.05;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
   }
 }
