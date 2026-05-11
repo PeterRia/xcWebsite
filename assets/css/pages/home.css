@@ -837,11 +837,11 @@
   /* 文字字号：下面的 8em 会跟随这个字号计算，所以字号越大，统一卡片也会越宽。 */
   --quicklink-font-size: clamp(12px, 0.9vw, 15px);
   /* 文字区宽度：8em 约等于 8 个当前字号的字符宽度，用来保证四个链接方块统一宽度。 */
-  --quicklink-text-width: 8em;
+  --quicklink-text-width: 7em;
   /* 图标外框宽高：单个链接总宽度会把这个值算进去。 */
   --quicklink-icon-size: 36px;
   /* 图标和文字之间的横向距离。 */
-  --quicklink-gap: 8px;
+  --quicklink-gap: 5px;
   /* 单个链接方块的左右内边距；上下内边距仍在 .quicklinks-list a 里单独设置。 */
   --quicklink-x-padding: 14px;
   /* 单个链接方块最终宽度 = 图标 + 间距 + 8 字文字区 + 左右内边距。 */
@@ -897,7 +897,7 @@
 .quicklinks-list a {
   position: relative;
   display: grid;
-  grid-template-columns: var(--quicklink-icon-size) var(--quicklink-text-width);
+  grid-template-columns: auto auto;
   gap: var(--quicklink-gap);
   align-items: center;
   justify-content: center;
@@ -956,8 +956,8 @@
 }
 
 .quicklink-text {
-  min-width: 0;
-  width: var(--quicklink-text-width);
+  width: auto;
+  overflow: visible;
 }
 
 .quicklink-name {
@@ -966,8 +966,8 @@
   line-height: 1.2;
   font-weight: 800;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: clip;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 @media (max-width: 1024px) {
@@ -1171,7 +1171,7 @@
   .quicklinks-panel {
     --quicklink-font-size: clamp(11px, 3.1vw, 13px);
     --quicklink-icon-size: 28px;
-    --quicklink-gap: 6px;
+    --quicklink-gap: 4px;
     --quicklink-x-padding: 8px;
     width: 100%;
     padding: 12px 10px;
