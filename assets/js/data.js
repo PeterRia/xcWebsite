@@ -29,11 +29,6 @@
         children: ["新闻学系", "网络与新媒体系", "数字媒体技术系", "播音与主持艺术系", "荣休教师"]
       },
       {
-        name: "学子风采",
-        href: "pages/education/index.html",
-        children: ["学生活动 ", "学生组织", "学生社团", "社会实践"]
-      },
-      {
         name: "学科建设",
         href: "pages/discipline/index.html",
         children: ["科研动态", "学术成果", "琢玉论坛", "研究中心"]
@@ -54,13 +49,18 @@
         children: ["党建动态", "支部风采"]
       },
       {
+        name: "学生工作",
+        href: "pages/student-work/index.html",
+        children: ["学生活动", "学生组织", "学生社团", "社会实践"]
+      },
+      {
         name: "校友风采",
         href: "pages/alumni/index.html",
         children: ["校友活动", "校友会", "优秀校友"]
       }
     ],
     /* 页脚栏目顺序：默认映射顶部 nav；这里只用于页脚局部排序。 */
-    footerNavOrder: ["学院概况", "师资力量", "学子风采", "学科建设", "人才培养", "招生就业", "党建工作", "校友风采"],
+    footerNavOrder: ["学院概况", "师资力量", "学科建设", "人才培养", "招生就业", "党建工作", "学生工作", "校友风采"],
     /* 轮播数据：唯一维护入口。
      * 规则：所有 hero 图片统一放在 assets/images/home/hero/，推荐 1920×1080、16:9、JPG/WebP；移动端和电脑端共用同一套图。
      * 首页 HTML 不再写死 slide 和圆点，pages/home.js 会按这里的数组自动渲染。
